@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!--
+
+    THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS
+    FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
+
+-->
+<rules xmlns="http://www.xebialabs.com/xl-deploy/xl-rules">
+
+    <rule name="docker.RunningContainer.create" scope="deployed">
+        <conditions>
+            <type>docker.RunningContainer</type>
+            <operation>CREATE</operation>
+        </conditions>
+        <steps>
+            <jython>
+                <description expression="true">"Create container " + deployed.name</description>
+                <order>50</order>
+                <script-path>docker/create-container.py</script-path>
+                <jython-context>
+                    <deployed expression="true">deployed</deployed>
+                </jython-context>
+            </jython>
+            <jython>
+                <description expression="true">"Start container " + deployed.name</description>
+                <order>51</order>
+                <script-path>docker/start-container.py</script-path>
+                <jython-context>
+                    <deployed expression="true">deployed</deployed>
+                </jython-context>
+            </jython>
+        </steps>
+    </rule>
+
+    <rule name="docker.RunningContainer.destroy" scope="deployed">
+        <conditions>
+            <type>docker.RunningContainer</type>
+            <operation>DESTROY</operation>
+        </conditions>
+        <steps>
+            <jython>
+                <description expression="true">"Stop container " + deployed.containerid</description>
+                <order>50</order>
+                <script-path>docker/stop-container.py</script-path>
+                <jython-context>
+                    <deployed expression="true">deployed</deployed>
+                </jython-context>
+            </jython>
+            <jython>
+                <description expression="true">"Destroy container " + deployed.containerid</description>
+                <order>51</order>
+                <script-path>docker/destroy-container.py</script-path>
+                <jython-context>
+                    <deployed expression="true">deployed</deployed>
+                </jython-context>
+            </jython>
+        </steps>
+    </rule>
+
+
+    <rule name="docker.Image.create" scope="deployed">
+        <conditions>
+            <type>docker.Image</type>
+            <operation>CREATE</operation>
+        </conditions>
+        <steps>
+            <jython>
+                <description expression="true">"Build image " + deployed.name</description>
+                <order>40</order>
+                <script-path>docker/build-image.py</script-path>
+                <jython-context>
+                    <deployed expression="true">deployed</deployed>
+                </jython-context>
+            </jython>
+        </steps>
+    </rule>
+
+</rules>

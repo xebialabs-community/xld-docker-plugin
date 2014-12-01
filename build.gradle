@@ -1,0 +1,37 @@
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath "nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0"
+  }
+}
+
+version='1.0.0'
+
+def apiVersion = '4.0.1'
+
+apply plugin: "com.github.hierynomus.license"
+apply plugin: 'java'
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+  maven {
+      credentials {
+            username 'community-plugins'
+            password 'community'
+        }
+      url 'http://nexus.xebialabs.com/nexus/content/repositories/releases'
+    }
+}
+
+dependencies {
+  compile "com.xebialabs.deployit:udm-plugin-api:$apiVersion"
+  compile "com.spotify:docker-client:2.7.1"
+}
+
+license {
+    header rootProject.file('src/main/license/xebialabs_community.license')
+    strictCheck true
+}
