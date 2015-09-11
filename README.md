@@ -26,6 +26,8 @@ Place the plugin JAR file into your `SERVER_HOME/plugins` directory.   Make sure
 # Usage #
 
 1. Go to `Repository - Infrastructure`, create a new `docker.Runner`.
+    * `serverUrl`: Example: https://boot2docker:2376
+    * `certificateLocation`: The semantics are similar to using the DOCKER_CERT_PATH environment variable: https://docs.docker.com/articles/https/#client-modes
 2. Create an environment under `Repository - Environments`
 3. Create an application with `docker.Build` and `docker.Container` as deployables.
 4. Start deploying
