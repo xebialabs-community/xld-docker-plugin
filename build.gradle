@@ -1,18 +1,15 @@
-buildscript {
-  repositories {
-    jcenter()
-  }
-  dependencies {
-    classpath "nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0"
-  }
+plugins {
+    id "com.github.hierynomus.license" version "0.11.0"
+    id "com.xebialabs.xldp" version "1.0.5"
 }
 
-version='1.0.0'
+version='1.1.0'
 
-def apiVersion = '4.0.1'
+def apiVersion = '2015.2.5'
 
-apply plugin: "com.github.hierynomus.license"
 apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
 
 repositories {
   mavenLocal()
@@ -28,7 +25,7 @@ repositories {
 
 dependencies {
   compile "com.xebialabs.deployit:udm-plugin-api:$apiVersion"
-  compile "com.spotify:docker-client:2.7.1"
+  distBundle "com.spotify:docker-client:3.1.4"
 }
 
 license {

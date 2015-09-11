@@ -11,8 +11,8 @@
            xsi:schemaLocation="http://www.xebialabs.com/deployit/synthetic synthetic.xsd">
 
     <type type="docker.Runner" extends="docker.VirtualContainer" >
-        <property name="serverUrl" required="true" />
-        <property name="certificateLocation" required="true" />
+        <property name="serverUrl" required="true" description="Example: https://boot2docker:2376"/>
+        <property name="certificateLocation" required="true" description="The semantics are similar to using the DOCKER_CERT_PATH environment variable: https://docs.docker.com/articles/https/#client-modes"/>
         <property name="username" required="false"/>
         <property name="password" required="false" password="true"/>
     </type>
@@ -23,7 +23,7 @@
         <property name="cmd" description="Command to start"/>
         <property name="containerid" required="false" default="" />
         <property name="stopTimeout" required="false" kind="integer" default="5" description="number of seconds to wait before killing the container" />
-        <method name="logs" delegate="jython" script="docker/retrieve-logs.py" task-description="Retrieve logs">
+        <method name="logs" delegate="jythonScript" script="docker/retrieve-logs.py" task-description="Retrieve logs">
             <parameters>
                 <parameter name="follow" kind="boolean" description="Return stream. Default false" default="false" />
                 <parameter name="stdout" kind="boolean" description="Show stdout log. Default false" default="false" />
@@ -37,9 +37,6 @@
     <type type="docker.Image" extends="udm.BaseDeployedArtifact" deployable-type="docker.Build" container-type="docker.Runner">
         <generate-deployable type="docker.Build" extends="udm.BaseDeployableFileArtifact"/>
     </type>
-
-    <!-- TODO add support for Helios -->
-    <!-- TODO add support for Zookeeper -->
 
 </synthetic>
 
