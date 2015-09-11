@@ -7,7 +7,7 @@ deploy:
   provider: releases
   api_key:
     secure: alaeOarV4869kZfE9zAqdARLndMWickS00K1OxT+C94db+Ko0oyIF3XVJD+u4r34xCvmlpiBdkom5C5UyI1z5CptwkONdH9kubHdTYey3Wpw0l7OQbpha0PXfUzj9V2bJqySgxx4yt3PJs49g9nOjWKuSn57c2AZ3ziAeKYZvQk=
-  file: build/libs/xld-docker-plugin-1.0.0.jar
+  file: build/distributions/xld-docker-plugin-1.1.0.xldp
   skip_cleanup: true
   on:
     all_branches: true
