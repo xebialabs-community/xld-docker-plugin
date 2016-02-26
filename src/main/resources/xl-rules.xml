@@ -6,74 +6,533 @@
     FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
 
 -->
+
 <rules xmlns="http://www.xebialabs.com/xl-deploy/xl-rules">
 
-    <rule name="docker.RunningContainer.create" scope="deployed">
+    <rule name="docker.RunContainers.Run" scope="plan">
+        <planning-script-path>docker/planning/run-containers.py</planning-script-path>
+    </rule>
+
+    <rule name="docker.cannot.have.network.and.links" scope="deployed">
         <conditions>
-            <type>docker.RunningContainer</type>
+            <type>docker.RunContainer</type>
+            <operation>CREATE</operation>
+            <operation>MODIFY</operation>
+        </conditions>
+        <planning-script-path>docker/planning/check-container-configuration.py</planning-script-path>
+    </rule>
+
+    <rule name="docker.network.deploy" scope="deployed">
+        <conditions>
+            <type>docker.Network</type>
+            <operation>CREATE</operation>
+            <operation>MODIFY</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Create a docker network '%s'" % (deployed.name)</description>
+                <order>63</order>
+                <script>docker/docker-network-create</script>
+                <freemarker-context>
+                    <target expression="true">deployed.container</target>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <rule name="docker.network.undeploy" scope="deployed">
+        <conditions>
+            <type>docker.Network</type>
+            <operation>DESTROY</operation>
+            <operation>MODIFY</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Remove a docker network '%s'" % (previousDeployed.name)</description>
+                <order>49</order>
+                <script>docker/docker-network-destroy</script>
+                <freemarker-context>
+                    <target expression="true">previousDeployed.container</target>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+
+    <rule name="docker.Container.Log" scope="deployed">
+        <conditions>
+            <type>docker.RunContainer</type>
+            <operation>CREATE</operation>
+            <operation>MODIFY</operation>
+            <expression>deployed.dumpLogsAfterStartup</expression>
+        </conditions>
+        <steps>
+            <wait>
+                <order>82</order>
+                <description expression="true">"Waiting for 5 seconds"</description>
+                <seconds>5</seconds>
+            </wait>
+            <os-script>
+                <description expression="true">"Dump the logs of the container '%s'" % (deployed.name)</description>
+                <order>82</order>
+                <script>docker/docker-log</script>
+                <freemarker-context>
+                    <target expression="true">deployed.container</target>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <rule name="docker.Container.is.running" scope="deployed">
+        <conditions>
+            <type>docker.RunContainer</type>
+            <operation>CREATE</operation>
+            <operation>MODIFY</operation>
+            <expression>deployed.checkContainerIsRunning</expression>
+        </conditions>
+        <steps>
+            <wait>
+                <order>83</order>
+                <description expression="true">"Waiting for 5 seconds"</description>
+                <seconds>5</seconds>
+            </wait>
+            <os-script>
+                <description expression="true">"Check if the container '%s' is running" % (deployed.name)</description>
+                <order>83</order>
+                <script>docker/docker-is-running</script>
+                <freemarker-context>
+                    <target expression="true">deployed.container</target>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <rule name="docker.Container.Stop" scope="deployed">
+        <conditions>
+            <type>docker.RunContainer</type>
+            <operation>DESTROY</operation>
+            <operation>MODIFY</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Stop the container '%s' (%s)" % (previousDeployed.name, previousDeployed.image)</description>
+                <order>35</order>
+                <script>docker/docker-stop</script>
+                <freemarker-context>
+                    <target expression="true">previousDeployed.container</target>
+                    <name expression="true">previousDeployed.name</name>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <rule name="docker.Container.Remove" scope="deployed">
+        <conditions>
+            <type>docker.RunContainer</type>
+            <operation>DESTROY</operation>
+            <operation>MODIFY</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Remove the container '%s' (%s)" % (previousDeployed.name, previousDeployed.image)</description>
+                <order>36</order>
+                <script>docker/docker-rm</script>
+                <freemarker-context>
+                    <target expression="true">previousDeployed.container</target>
+                    <name expression="true">previousDeployed.name</name>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <rule name="docker.pull.image" scope="deployed">
+        <conditions>
+            <type>docker.RunContainer</type>
+            <operation>CREATE</operation>
+            <operation>MODIFY</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Pull the image %s (%s)" % (deployed.name, deployed.image) if deployed.registryHost is None else "Pull the image %s (%s) from the registry %s:%s " % (deployed.name, deployed.image,deployed.registryHost, deployed.registryPort)</description>
+                <order>2</order>
+                <script>docker/docker-pull</script>
+                <freemarker-context>
+                    <target expression="true">deployed.container</target>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+    <rule name="docker.pull.image.tag" scope="deployed">
+        <conditions>
+            <type>docker.RunContainer</type>
+            <operation>CREATE</operation>
+            <operation>MODIFY</operation>
+            <expression>deployed.registryHost is not None</expression>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Tag the image %s (%s)" % (deployed.name,deployed.image)</description>
+                <order>3</order>
+                <script>docker/docker-pull-tag</script>
+                <freemarker-context>
+                    <target expression="true">deployed.container</target>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+
+    <rule name="smoketest.RunHttpRequest.docker" scope="deployed">
+        <conditions>
+            <type>smoketest.ExecutedDockerizedHttpRequestTest</type>
+            <operation>CREATE</operation>
+            <operation>MODIFY</operation>
+            <operation>NOOP</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <script>docker/run-command</script>
+                <order>102</order>
+                <description expression="true">"Run '%s' on %s" % (deployed.name, deployed.container.name)</description>
+                <classpath-resources>
+                    <value>smoketest/execute-http-request.sh.ftl</value>
+                </classpath-resources>
+                <target-host expression="true">deployed.container.machine.host</target-host>
+                <freemarker-context>
+                    <script>smoketest/execute-http-request</script>
+                    <target expression="true">deployed.container.machine</target>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <!-- Volumes -->
+    <rule name="docker.volume.create" scope="deployed">
+        <conditions>
+            <type>docker.DataFileVolume</type>
+            <type>docker.DataFolderVolume</type>
             <operation>CREATE</operation>
         </conditions>
         <steps>
+            <os-script>
+                <description expression="true">"Create the docker volume %s" % deployed.volumeName</description>
+                <order>57</order>
+                <script>docker/volume-create</script>
+                <freemarker-context>
+                    <target expression="true">deployed.container</target>
+                    <volumeName expression="true">deployed.volumeName</volumeName>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <rule name="docker.cp.file" scope="deployed">
+        <conditions>
+            <type>docker.DataFileVolume</type>
+            <operation>CREATE</operation>
+            <operation>MODIFY</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Copy the file '%s' to the volume '%s' mounted for '%s' " % (deployed.name, deployed.volumeName,
+                    deployed.containerName)
+                </description>
+                <order>67</order>
+                <script>docker/docker-cp</script>
+                <freemarker-context>
+                    <target expression="true">deployed.container</target>
+                    <volumeName expression="true">deployed.volumeName</volumeName>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <rule name="docker.cp.folder" scope="deployed">
+        <conditions>
+            <type>docker.DataFolderVolume</type>
+            <operation>CREATE</operation>
+            <operation>MODIFY</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Copy the folder '%s' to the volume '%s' mounted for '%s' " % (deployed.name, deployed.volumeName,
+                    deployed.containerName)
+                </description>
+                <order>67</order>
+                <script>docker/docker-cp-folder</script>
+                <freemarker-context>
+                    <target expression="true">deployed.container</target>
+                    <volumeName expression="true">deployed.volumeName</volumeName>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <rule name="docker.volume.remove" scope="deployed">
+        <conditions>
+            <type>docker.DataFileVolume</type>
+            <type>docker.DataFolderVolume</type>
+            <operation>DESTROY</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Remove the docker volume %s" % previousDeployed.volumeName</description>
+                <order>57</order>
+                <script>docker/volume-rm</script>
+                <freemarker-context>
+                    <target expression="true">previousDeployed.container</target>
+                    <volumeName expression="true">previousDeployed.volumeName</volumeName>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <rule name="docker.stop.start.container.on.modified.volumes" scope="plan">
+        <planning-script-path>docker/planning/start-stop-container-on-modified-volumes.py</planning-script-path>
+    </rule>
+    <!-- /Volumes -->
+
+    <!-- Docker Compose -->
+    <rule name="docker.compose.up" scope="deployed">
+        <conditions>
+            <type>docker.ComposedContainers</type>
+            <operation>CREATE</operation>
+            <operation>MODIFY</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Execute docker-compose up '%s' on '%s' " % (deployed.name,deployed.container.name)</description>
+                <order>65</order>
+                <script>docker-compose/up</script>
+                <freemarker-context>
+                    <composed expression="true">deployed</composed>
+                    <target expression="true">deployed.container</target>
+                    <application expression="true">deployedApplication.name</application>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <rule name="docker.compose.stop" scope="deployed">
+        <conditions>
+            <type>docker.ComposedContainers</type>
+            <operation>MODIFY</operation>
+            <operation>DESTROY</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Execute docker-compose stop '%s' file on '%s'" % (previousDeployed.name, previousDeployed.container.name)
+                </description>
+                <order>35</order>
+                <script>docker-compose/stop</script>
+                <freemarker-context>
+                    <composed expression="true">previousDeployed</composed>
+                    <target expression="true">previousDeployed.container</target>
+                    <application expression="true">previousDeployedApplication.name</application>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <rule name="docker.compose.remove" scope="deployed">
+        <conditions>
+            <type>docker.ComposedContainers</type>
+            <operation>MODIFY</operation>
+            <operation>DESTROY</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Execute docker-compose remove '%s' file on '%s'" % (previousDeployed.name, previousDeployed.container.name)
+                </description>
+                <order>36</order>
+                <script>docker-compose/rm</script>
+                <freemarker-context>
+                    <composed expression="true">previousDeployed</composed>
+                    <target expression="true">previousDeployed.container</target>
+                    <application expression="true">previousDeployedApplication.name</application>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+
+    <rule name="docker.compose.logs" scope="deployed">
+        <conditions>
+            <type>docker.ComposedContainers</type>
+            <operation>CREATE</operation>
+            <operation>MODIFY</operation>
+            <expression>deployed.dumpLogsAfterStartup</expression>
+        </conditions>
+        <steps>
+            <wait>
+                <order>82</order>
+                <description expression="true">"Waiting for 20 seconds"</description>
+                <seconds>20</seconds>
+            </wait>
+            <os-script>
+                <description expression="true">"Dump the logs of composed containers '%s'" % (deployed.name)</description>
+                <order>82</order>
+                <script>docker-compose/logs</script>
+                <freemarker-context>
+                    <target expression="true">deployed.container</target>
+                    <application expression="true">deployedApplication.name</application>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+    <!-- / Docker Compose -->
+
+    <!-- Docker Machine -->
+    <rule name="docker.DeployedDockerMachine.deploy" scope="deployed">
+        <conditions>
+            <type>docker.DeployedDockerMachine</type>
+            <operation>CREATE</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Create the '%s' Docker machine on '%s' " % (deployed.machineName,deployed.container.name)</description>
+                <script>docker-machine/create</script>
+                <order>60</order>
+            </os-script>
             <jython>
-                <description expression="true">"Create container " + deployed.name</description>
-                <order>50</order>
-                <script-path>docker/create-container.py</script-path>
+                <description expression="true">"Fetch information about the '%s' Docker machine on '%s' " % (deployed.machineName,deployed.container.name)
+                </description>
+                <script>docker-machine/fetch-ip.py</script>
+                <order>60</order>
                 <jython-context>
-                    <deployed expression="true">deployed</deployed>
+                    <target expression="true">deployed</target>
+                    <context_key expression="true">"data_%s" % deployed.name</context_key>
                 </jython-context>
             </jython>
             <jython>
-                <description expression="true">"Start container " + deployed.name</description>
-                <order>51</order>
-                <script-path>docker/start-container.py</script-path>
+                <order>60</order>
+                <description expression="true">"Define the '%s' Docker machine in the XLD Repository" % (deployed.machineName)</description>
+                <script>docker-machine/ci/create.py</script>
                 <jython-context>
-                    <deployed expression="true">deployed</deployed>
+                    <context_key expression="true">"data_%s" % deployed.name</context_key>
+                    <ci_type>docker.Machine</ci_type>
+                    <ci_id expression="true">"/".join([deployed.container.id,deployed.machineName])</ci_id>
+                    <ci_properties expression="true">{'provider': deployed.driver,'dynamicParameters':True, 'swarmMaster': False}</ci_properties>
                 </jython-context>
             </jython>
         </steps>
     </rule>
 
-    <rule name="docker.RunningContainer.destroy" scope="deployed">
+    <rule name="docker.DeployedSwarmMachine.deploy" scope="deployed">
         <conditions>
-            <type>docker.RunningContainer</type>
+            <type>docker.DeployedSwarmMachine</type>
+            <operation>CREATE</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Create the '%s' Swarm Docker machine on '%s'" % (deployed.machineName,deployed.container.name)</description>
+                <script>docker-machine/create-swarm</script>
+                <order expression="true">59 if deployed.master else 60</order>
+            </os-script>
+            <jython>
+                <description expression="true">"Fetch information about the '%s' Docker machine on '%s' " % (deployed.machineName,deployed.container.name)
+                </description>
+                <script>docker-machine/fetch-ip.py</script>
+                <order expression="true">59 if deployed.master else 60</order>
+                <jython-context>
+                    <target expression="true">deployed</target>
+                    <context_key expression="true">"data_%s" % deployed.name</context_key>
+                </jython-context>
+            </jython>
+            <jython>
+                <description expression="true">"Define the '%s' Docker machine in the XLD Repository" % (deployed.name)</description>
+                <script>docker-machine/ci/create.py</script>
+                <order expression="true">59 if deployed.master else 60</order>
+                <jython-context>
+                    <context_key expression="true">"data_%s" % deployed.name</context_key>
+                    <ci_type>docker.Machine</ci_type>
+                    <ci_id expression="true">"/".join([deployed.container.id,deployed.machineName])</ci_id>
+                    <ci_properties expression="true">{'provider': deployed.driver,'dynamicParameters':True, 'swarmMaster': True if deployed.master else False}
+                    </ci_properties>
+                </jython-context>
+            </jython>
+
+        </steps>
+    </rule>
+
+
+    <rule name="docker.DeployedDockerMachine.deploy.repository" scope="deployed">
+        <conditions>
+            <type>docker.DeployedDockerMachine</type>
+            <type>docker.DeployedSwarmMachine</type>
+            <operation>CREATE</operation>
+            <expression>deployed.environmentId is not None</expression>
+        </conditions>
+        <steps>
+            <jython>
+                <order>61</order>
+                <description expression="true">"Define the '%s' Environment in the XLD Repository" % (deployed.environmentId)</description>
+                <script>docker-machine/ci/create-environment.py</script>
+                <jython-context>
+                    <ci_type>udm.Environment</ci_type>
+                    <ci_id expression="true">deployed.environmentId</ci_id>
+                </jython-context>
+            </jython>
+            <jython>
+                <order>61</order>
+                <description expression="true">"Add '%s' docker-machine to the environment '%s'" % (deployed.name,deployed.environmentId)</description>
+                <script>docker-machine/ci/add-to-environment.py</script>
+                <jython-context>
+                    <ci_id expression="true">deployed.environmentId</ci_id>
+                    <ci_member_id expression="true">"/".join([deployed.container.id,deployed.machineName])</ci_member_id>
+                </jython-context>
+            </jython>
+        </steps>
+    </rule>
+
+    <rule name="docker.DeployedDockerMachine.undeploy.repository" scope="deployed">
+        <conditions>
+            <type>docker.DeployedDockerMachine</type>
+            <type>docker.DeployedSwarmMachine</type>
+            <operation>DESTROY</operation>
+            <expression>previousDeployed.environmentId is not None</expression>
+        </conditions>
+        <steps>
+            <jython>
+                <order>39</order>
+                <description expression="true">"Remove '%s' docker-machine from the environment '%s'" %
+                    (previousDeployed.machineName,previousDeployed.environmentId)
+                </description>
+                <script>docker-machine/ci/remove-from-environment.py</script>
+                <jython-context>
+                    <ci_id expression="true">previousDeployed.environmentId</ci_id>
+                    <ci_member_id expression="true">"/".join([previousDeployed.container.id,"%s" % previousDeployed.machineName])</ci_member_id>
+                </jython-context>
+            </jython>
+        </steps>
+    </rule>
+
+    <rule name="docker.DeployedDockerMachine.undeploy" scope="deployed">
+        <conditions>
+            <type>docker.DeployedDockerMachine</type>
+            <type>docker.DeployedSwarmMachine</type>
             <operation>DESTROY</operation>
         </conditions>
         <steps>
             <jython>
-                <description expression="true">"Stop container " + deployed.containerid</description>
-                <order>50</order>
-                <script-path>docker/stop-container.py</script-path>
-                <jython-context>
-                    <deployed expression="true">deployed</deployed>
-                </jython-context>
-            </jython>
-            <jython>
-                <description expression="true">"Destroy container " + deployed.containerid</description>
-                <order>51</order>
-                <script-path>docker/destroy-container.py</script-path>
-                <jython-context>
-                    <deployed expression="true">deployed</deployed>
-                </jython-context>
-            </jython>
-        </steps>
-    </rule>
-
-
-    <rule name="docker.Image.create" scope="deployed">
-        <conditions>
-            <type>docker.Image</type>
-            <operation>CREATE</operation>
-        </conditions>
-        <steps>
-            <jython>
-                <description expression="true">"Build image " + deployed.name</description>
                 <order>40</order>
-                <script-path>docker/build-image.py</script-path>
+                <description expression="true">"Remove the '%s' Docker machine from the XLD Repository" % (previousDeployed.machineName)</description>
+                <script>docker-machine/ci/destroy.py</script>
                 <jython-context>
-                    <deployed expression="true">deployed</deployed>
+                    <ci_id expression="true">"/".join([previousDeployed.container.id,"%s" % previousDeployed.machineName])</ci_id>
                 </jython-context>
             </jython>
+            <os-script>
+                <description expression="true">"Destroy the '%s' Docker machine" % previousDeployed.machineName</description>
+                <script>docker-machine/destroy</script>
+                <order>40</order>
+                <freemarker-context>
+                    <machine_name expression="true">previousDeployed.machineName</machine_name>
+                </freemarker-context>
+            </os-script>
         </steps>
     </rule>
+
+    <!-- /Docker Machine -->
 
 </rules>

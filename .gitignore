@@ -1,4 +1,10 @@
 build/
 .gradle/
-.idea/
-xld-docker-plugin.iml
+*.iml
+*.ipr
+*.iws
+PetDocker/dar/deployit-manifest.xml
+PetDocker/PetDocker-*.dar
+Environments/
+Dockerfiles/
+out/

@@ -1,0 +1,18 @@
+haproxy:
+  image: eeacms/haproxy
+  links:
+  - webapp
+  ports:
+  - "80:80"
+  - "1936:1936"
+
+webapp:
+  image: razvan3895/nodeserver
+
+mysqldb:
+  image: mysql:latest
+  environment:
+    MYSQL_DATABASE: sample
+    MYSQL_USER: mysql
+    MYSQL_PASSWORD: mysql
+    MYSQL_ROOT_PASSWORD: supersecret

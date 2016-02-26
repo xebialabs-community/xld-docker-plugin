@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!--
 
     THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR
@@ -6,37 +6,205 @@
     FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
 
 -->
-<synthetic xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns="http://www.xebialabs.com/deployit/synthetic"
-           xsi:schemaLocation="http://www.xebialabs.com/deployit/synthetic synthetic.xsd">
+<!--
+    Note: If you modify this file, you must restart the XL Deploy server.
+-->
+<synthetic xsi:schemaLocation="http://www.xebialabs.com/deployit/synthetic synthetic.xsd" xmlns="http://www.xebialabs.com/deployit/synthetic"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <type type="docker.Runner" extends="docker.VirtualContainer" >
-        <property name="serverUrl" required="true" description="Example: https://boot2docker:2376"/>
-        <property name="certificateLocation" required="true" description="The semantics are similar to using the DOCKER_CERT_PATH environment variable: https://docs.docker.com/articles/https/#client-modes"/>
-        <property name="username" required="false"/>
-        <property name="password" required="false" password="true"/>
+    <type type="docker.Machine" extends="generic.Container" description="A Docker Machine that can be reached from the associated Host.">
+        <property name="address" required="false"/>
+        <property name="port" kind="integer" default="2376" required="false"/>
+        <property name="certificatePath" required="false"/>
+        <property label="TLS Verify" name="tls_verify" default="true" kind="boolean" required="false"/>
+        <property name="dynamicParameters" kind="boolean" default="false" required="false" category="Advanced"
+                  description="use the docker-machnine env command line to generate the connection information"/>
+        <property name="provider" default="virtualbox" category="Advanced"/>
+        <property name="swarmMaster" default="false" kind="boolean" required="false" category="Swarm"/>
+        <property name="swarmPort" kind="integer" default="3376" required="false" category="Swarm"/>
     </type>
 
-    <type type="docker.RunningContainer" extends="udm.BaseDeployed" deployable-type="docker.Container" container-type="docker.Runner">
-        <generate-deployable type="docker.Container" extends="udm.BaseDeployable"/>
-        <property name="image" description="image name"/>
-        <property name="cmd" description="Command to start"/>
-        <property name="containerid" required="false" default="" />
-        <property name="stopTimeout" required="false" kind="integer" default="5" description="number of seconds to wait before killing the container" />
-        <method name="logs" delegate="jythonScript" script="docker/retrieve-logs.py" task-description="Retrieve logs">
-            <parameters>
-                <parameter name="follow" kind="boolean" description="Return stream. Default false" default="false" />
-                <parameter name="stdout" kind="boolean" description="Show stdout log. Default false" default="false" />
-                <parameter name="stderr" kind="boolean" description="Show stderr log. Default false" default="false" />
-                <parameter name="timestamps" kind="boolean" description="Print timestamps for every log line. Default false" default="false" />
-                <parameter name="tail" kind="string" description="POutput specified number of lines at the end of logs: all or &lt;number&gt;" default="all" />
-            </parameters>
-        </method>
+
+    <type type="docker.RunContainer" extends="udm.BaseDeployed" deployable-type="docker.Image" container-type="docker.Machine">
+        <generate-deployable type="docker.Image" extends="udm.BaseDeployable"/>
+        <property name="image"/>
+        <property name="entryPoint" required="false"/>
+        <property name="command" required="false"/>
+        <property name="args" required="false"/>
+        <property name="labels" kind="set_of_string" required="false" category="Labels"/>
+        <property name="network" required="false" category="Network"/>
+        <property name="publishAllExposedPorts" required="false" kind="boolean" default="false" category="Network"/>
+        <property name="ports" kind="set_of_ci" referenced-type="docker.Port" as-containment="true" required="false" category="Network"/>
+        <property name="links" kind="set_of_ci" referenced-type="docker.Link" as-containment="true" required="false" category="Network"/>
+        <property name="dependencies" kind="list_of_string" required="false" category="Deployment" description="list of containers that should be created or started before."/>
+        <property name="volumes" kind="set_of_ci" referenced-type="docker.Volume" as-containment="true" required="false" category="Volumes"/>
+        <property name="volumesFrom" kind="set_of_string" required="false" category="Volumes"/>
+        <property name="variables" kind="set_of_ci" referenced-type="docker.EnvironmentVariable" as-containment="true" required="false" category="Variables"/>
+        <property name="extendedPrivileges" kind="boolean" required="false" default="false" category="Advanced"/>
+        <property name="memory" required="false" category="Advanced"/>
+        <property name="workDirectory" required="false" kind="boolean" default="false" category="Advanced"/>
+        <property name="removeOnExit" description="Automatically remove the container when it exits" kind="boolean" default="false" required="false"
+                  category="Advanced"/>
+        <property name="dumpLogsAfterStartup" kind="boolean" default="true" description="Generate a step to dump log after start up the container"
+                  category="Advanced"/>
+        <property name="checkContainerIsRunning" kind="boolean" default="true" description="Generate a step to check whether the container is up and running."
+                  category="Advanced"/>
+        <property name="restartAlways" kind="boolean" default="false" description="Restart policy : Always"
+                  category="Advanced"/>
+        <property name="registryHost" required="false" category="Registry"/>
+        <property name="registryPort" required="false" kind="integer" default="5000" category="Registry"/>
     </type>
 
-    <type type="docker.Image" extends="udm.BaseDeployedArtifact" deployable-type="docker.Build" container-type="docker.Runner">
-        <generate-deployable type="docker.Build" extends="udm.BaseDeployableFileArtifact"/>
+    <type-modification type="docker.Image">
+        <property name="ports" kind="set_of_ci" referenced-type="docker.PortSpec" as-containment="true" required="false" category="Network"/>
+        <property name="links" kind="set_of_ci" referenced-type="docker.LinkSpec" as-containment="true" required="false" category="Network"/>
+        <property name="volumes" kind="set_of_ci" referenced-type="docker.VolumeSpec" as-containment="true" required="false" category="Volumes"/>
+        <property name="variables" kind="set_of_ci" referenced-type="docker.EnvironmentVariableSpec" as-containment="true" required="false"
+                  category="Variables"/>
+    </type-modification>
+
+    <type type="docker.Volume" deployable-type="docker.VolumeSpec" container-type="docker.RunContainer" extends="udm.BaseEmbeddedDeployed">
+        <generate-deployable type="docker.VolumeSpec" extends="udm.BaseEmbeddedDeployable"/>
+        <property name="containerPath"/>
     </type>
+
+    <type type="docker.Link" deployable-type="docker.LinkSpec" container-type="docker.RunContainer" extends="udm.BaseEmbeddedDeployed">
+        <generate-deployable type="docker.LinkSpec" extends="udm.BaseEmbeddedDeployable"/>
+        <property name="alias" required="false"/>
+    </type>
+
+    <type type="docker.Port" deployable-type="docker.PortSpec" container-type="docker.RunContainer" extends="udm.BaseEmbeddedDeployed">
+        <generate-deployable type="docker.PortSpec" extends="udm.BaseEmbeddedDeployable"/>
+        <property name="hostPort" required="false" kind="integer"/>
+        <property name="containerPort" kind="integer"/>
+        <property name="protocol" required="false" description="e.g udp"/>
+    </type>
+
+    <type type="docker.EnvironmentVariable" deployable-type="docker.EnvironmentVariableSpec" container-type="docker.RunContainer"
+          extends="udm.BaseEmbeddedDeployed">
+        <generate-deployable type="docker.EnvironmentVariableSpec" extends="udm.BaseEmbeddedDeployable"/>
+        <property name="value"/>
+        <property name="separator" default="=" category="Advanced" description="most of the time, it is '=' but something it can be ':' e.g. constraint:storage==ssd"/>
+    </type>
+
+    <type type="docker.DataFolderVolume" extends="udm.BaseDeployedArtifact" deployable-type="docker.Folder" container-type="docker.Machine">
+        <generate-deployable type="docker.Folder" extends="udm.BaseDeployableFolderArtifact"/>
+        <property name="volumeName"/>
+        <property name="containerName"/>
+        <property name="containerPath"/>
+    </type>
+
+    <type type="docker.DataFileVolume" extends="udm.BaseDeployedArtifact" deployable-type="docker.File" container-type="docker.Machine">
+        <generate-deployable type="docker.File" extends="udm.BaseDeployableFileArtifact"/>
+        <property name="volumeName"/>
+        <property name="containerName"/>
+        <property name="containerPath"/>
+    </type>
+
+    <type type="docker.ComposedContainers" extends="udm.BaseDeployedArtifact" deployable-type="docker.ComposeFile" container-type="docker.Machine">
+        <generate-deployable type="docker.ComposeFile" extends="udm.BaseDeployableFileArtifact"/>
+        <property name="forceRecreate" kind="boolean" default="false" required="false" category="Advanced"/>
+        <property name="dumpLogsAfterStartup" kind="boolean" default="false" description="Generate a step to dump log after start up the container"
+                  category="Advanced"/>
+    </type>
+
+    <type-modification type="docker.ComposeFile">
+        <property name="scanPlaceholders" default="true" kind="boolean"/>
+        <property name="textFileNamesRegex" default=".+\.(yml | yaml)" hidden="true"/>
+    </type-modification>
+
+
+    <type type="docker.Network" extends="udm.BaseDeployed" deployable-type="docker.NetworkSpec" container-type="docker.Machine">
+        <generate-deployable type="docker.NetworkSpec" extends="udm.BaseDeployable"/>
+        <property name="driver"/>
+    </type>
+
+    <!-- smoke test -->
+
+    <type type="docker.Container" extends="udm.BaseContainer">
+        <property name="machine" kind="ci" referenced-type="docker.Machine" as-containment="true"/>
+        <property name="image"/>
+        <method name="logs" delegate="shellScript" script="docker/log" task-description="Docker logs"/>
+        <method name="inspect" delegate="shellScript" script="docker/inspect" task-description="Docker inspect"/>
+    </type>
+
+
+    <type type="smoketest.DockerRunner" extends="docker.Container">
+        <property name="powershellInstalled" kind="boolean" default="true" required="false" hidden="true"
+                  description="Enable to indicate Powershell (V3+) installed on the host associated to the Runner"/>
+    </type>
+
+    <type type="smoketest.ExecutedDockerizedHttpRequestTest" extends="udm.BaseDeployed"
+          container-type="smoketest.DockerRunner" deployable-type="smoketest.HttpRequestTest">
+        <property name="image" default="bmoussaud/ubuntu-wget"/>
+        <property name="links" kind="set_of_string" required="false" category="Network"/>
+
+        <property name="url" description="The URL to test"/>
+        <property name="expectedResponseText" size="large"
+                  description="Text that is expected to be contained in the HTTP response body, if the response code is in the 200 range. A non-2xx response code will cause the test to fail irrespective of the response body"/>
+
+        <property name="showPageInConsole" required="false" kind="boolean" default="false" category="Options"
+                  description="Show the page retrieved from the url"/>
+        <property name="headers" kind="set_of_string" required="false" category="Request Headers"/>
+        <property name="ignoreCertificateWarnings" required="false" default="true" kind="boolean" category="Options"
+                  description="If set, certificate warnings when making a connection will be ignored"/>
+        <property name="startDelay" kind="integer" default="2" category="Options" description="Time in seconds to wait before starting the execution of step"/>
+        <property name="maxRetries" kind="integer" default="5" category="Options"
+                  description="Number of times to attempt executing the step, in case it fails"/>
+        <property name="retryWaitInterval" kind="integer" default="5" category="Options" description="Time in seconds to wait before next retry"/>
+        <property name="timeout" kind="integer" default="30" category="Options" description="Timeout in seconds for a query on the specified url"/>
+        <property name="entryPoint" required="false" default="/bin/bash" hidden="true"/>
+        <property name="registryHost" required="false" category="Registry"/>
+        <property name="registryPort" required="false" kind="integer" default="5000" category="Registry"/>
+    </type>
+
+    <type-modification type="smoketest.HttpRequestTest">
+        <property name="links" kind="set_of_string" required="false" category="Network"/>
+    </type-modification>
+    <!-- /smoke test -->
+
+    <!-- MySQL Database -->
+    <type type="sql.DockerMySqlClient" extends="sql.MySqlClient">
+        <property name="image" default="mysql:5.7.6"/>
+    </type>
+
+    <type type="sql.DockerizedExecutedSqlScripts" extends="sql.ExecutedSqlScripts"
+          deployable-type="sql.SqlScripts"
+          container-type="sql.DockerMySqlClient"
+          description="SQL scripts executed on an SQL client by Docker!">
+        <property name="executorScript" hidden="true" default="docker/${deployed.container.clientWrapperScript}"/>
+    </type>
+    <!-- /MySQL Database -->
+
+    <!-- Provisioning -->
+    <type type="docker.DeployedDockerMachine" extends="udm.BaseDeployed" container-type="overthere.Host" deployable-type="docker.MachineSpec">
+        <generate-deployable type="docker.MachineSpec" extends="udm.BaseDeployable"/>
+        <property name="driver" default="virtualbox" description="Driver to create machine with."/>
+        <property name="insecureRegistries" kind="list_of_string" required="false" description="insecure registries to allow with the created engine"/>
+        <property name="engineOptions" kind="set_of_string" required="false" category="Engine"
+                  description="Arbitrary flags to include with the created engine in the form flag=value"/>
+        <property name="engineLabels" kind="set_of_string" required="false" category="Engine"
+                  description="Specify labels for the created engine key=value"/>
+        <property name="machineName" required="false" category="Provisioning"/>
+        <property name="environmentId" required="false" category="Provisioning"/>
+    </type>
+
+    <type type="docker.DeployedSwarmMachine" extends="udm.BaseDeployed" container-type="overthere.Host" deployable-type="docker.SwarmMachineSpec">
+        <generate-deployable type="docker.SwarmMachineSpec" extends="udm.BaseDeployable"/>
+        <property name="driver" default="virtualbox" description="Driver to create machine with."/>
+        <property name="master" kind="boolean" default="false" required="false"/>
+        <property name="swarmImage" default="swarm:latest" description="Specify Docker image to use for Swarm"/>
+        <property name="swarmStrategy" default="spread" description="Define a default scheduling strategy for Swarm"/>
+        <property name="swarmDiscovery" description="Discovery service to use with Swarm, eg token://TOKEN"/>
+        <property name="swarmHost" default="tcp://0.0.0.0:3376" description="ip/socket to listen on for Swarm master"/>
+        <property name="insecureRegistries" kind="list_of_string" required="false" description="insecure registries to allow with the created engine"/>
+        <property name="engineOptions" kind="set_of_string" required="false" category="Engine"
+                  description="Arbitrary flags to include with the created engine in the form flag=value"/>
+        <property name="engineLabels" kind="set_of_string" required="false"
+                  description="Specify labels for the created engine key=value" category="Engine"/>
+        <property name="machineName" required="false" category="Provisioning"/>
+        <property name="environmentId" required="false" category="Provisioning"/>
+    </type>
+    <!-- /Provisioning -->
 
 </synthetic>
-
