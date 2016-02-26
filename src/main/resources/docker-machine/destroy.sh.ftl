@@ -6,4 +6,5 @@
 
 -->
 echo "Removing docker '${machine_name}' machine "
-docker-machine rm ${machine_name}
+echo "docker-machine rm --force ${machine_name}"
+docker-machine rm --force ${machine_name}
