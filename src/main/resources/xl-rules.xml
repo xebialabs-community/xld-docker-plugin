@@ -153,7 +153,9 @@
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Pull the image %s (%s)" % (deployed.name, deployed.image) if deployed.registryHost is None else "Pull the image %s (%s) from the registry %s:%s " % (deployed.name, deployed.image,deployed.registryHost, deployed.registryPort)</description>
+                <description expression="true">"Pull the image %s (%s)" % (deployed.name, deployed.image) if deployed.registryHost is None else "Pull the image
+                    %s (%s) from the registry %s:%s " % (deployed.name, deployed.image,deployed.registryHost, deployed.registryPort)
+                </description>
                 <order>2</order>
                 <script>docker/docker-pull</script>
                 <freemarker-context>
@@ -412,7 +414,8 @@
                     <context_key expression="true">"data_%s" % deployed.name</context_key>
                     <ci_type>docker.Machine</ci_type>
                     <ci_id expression="true">"/".join([deployed.container.id,deployed.machineName])</ci_id>
-                    <ci_properties expression="true">{'provider': deployed.driver,'dynamicParameters':True, 'swarmMaster': False}</ci_properties>
+                    <ci_properties expression="true">{'provider': deployed.driver,'dynamicParameters':True, 'swarmMaster': False, 'tags': deployed.tags}
+                    </ci_properties>
                 </jython-context>
             </jython>
         </steps>
@@ -447,7 +450,8 @@
                     <context_key expression="true">"data_%s" % deployed.name</context_key>
                     <ci_type>docker.Machine</ci_type>
                     <ci_id expression="true">"/".join([deployed.container.id,deployed.machineName])</ci_id>
-                    <ci_properties expression="true">{'provider': deployed.driver,'dynamicParameters':True, 'swarmMaster': True if deployed.master else False}
+                    <ci_properties expression="true">{'provider': deployed.driver,'dynamicParameters':True, 'swarmMaster': True if deployed.master else False,
+                        'tags': deployed.tags}
                     </ci_properties>
                 </jython-context>
             </jython>
