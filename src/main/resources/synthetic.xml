@@ -36,7 +36,8 @@
         <property name="publishAllExposedPorts" required="false" kind="boolean" default="false" category="Network"/>
         <property name="ports" kind="set_of_ci" referenced-type="docker.Port" as-containment="true" required="false" category="Network"/>
         <property name="links" kind="set_of_ci" referenced-type="docker.Link" as-containment="true" required="false" category="Network"/>
-        <property name="dependencies" kind="list_of_string" required="false" category="Deployment" description="list of containers that should be created or started before."/>
+        <property name="dependencies" kind="list_of_string" required="false" category="Deployment"
+                  description="list of containers that should be created or started before."/>
         <property name="volumes" kind="set_of_ci" referenced-type="docker.Volume" as-containment="true" required="false" category="Volumes"/>
         <property name="volumesFrom" kind="set_of_string" required="false" category="Volumes"/>
         <property name="variables" kind="set_of_ci" referenced-type="docker.EnvironmentVariable" as-containment="true" required="false" category="Variables"/>
@@ -84,7 +85,8 @@
           extends="udm.BaseEmbeddedDeployed">
         <generate-deployable type="docker.EnvironmentVariableSpec" extends="udm.BaseEmbeddedDeployable"/>
         <property name="value"/>
-        <property name="separator" default="=" category="Advanced" description="most of the time, it is '=' but something it can be ':' e.g. constraint:storage==ssd"/>
+        <property name="separator" default="=" category="Advanced"
+                  description="most of the time, it is '=' but something it can be ':' e.g. constraint:storage==ssd"/>
     </type>
 
     <type type="docker.DataFolderVolume" extends="udm.BaseDeployedArtifact" deployable-type="docker.Folder" container-type="docker.Machine">
@@ -206,5 +208,12 @@
         <property name="environmentId" required="false" category="Provisioning"/>
     </type>
     <!-- /Provisioning -->
+
+
+    <type-modification type="docker.DockerMachineDictionary">
+        <method name="loadDockerMachines" label="Load the Docker Machines:w " delegate="jythonScript"
+                script="docker/load-docker-machine-in-dictionary.py">
+        </method>
+    </type-modification>
 
 </synthetic>
