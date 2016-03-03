@@ -8,8 +8,10 @@ package ext.deployit.community.ci.docker;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.cache.*;
 import com.google.common.collect.Maps;
 
 import com.xebialabs.deployit.plugin.api.udm.Dictionary;
@@ -34,6 +36,9 @@ public class DockerMachineDictionary extends Dictionary {
 
     @Property(description = "Reload the entries during the planning phase", defaultValue = "True", category = "Advanced")
     private boolean dynamicLoad;
+
+    @Property(description = "Use a cache (10 seconds)...", defaultValue = "True", category = "Advanced", hidden = true)
+    private boolean useCache;
 
 
     @Property(description = "docker machine command used to fetch the name and ip", defaultValue = "docker-machine ls --format {{.Name}}={{.URL}}", category = "Advanced", hidden = true)
@@ -70,7 +75,12 @@ public class DockerMachineDictionary extends Dictionary {
     public Map<String, String> getEntries() {
         if (dynamicLoad) {
             logger.debug("dynamicLoad True");
-            Map data = getDockerMachines();
+            Map data;
+            if (useCache) {
+                data = dockerMachinesCache.getUnchecked(this);
+            } else {
+                data = getDockerMachines();
+            }
             logger.debug("docker-machines " + data);
             return data;
         } else {
@@ -78,6 +88,22 @@ public class DockerMachineDictionary extends Dictionary {
         }
     }
 
-    private static Logger logger = LoggerFactory.getLogger(DockerMachineDictionary.class);
 
+    private static LoadingCache<DockerMachineDictionary, Map<String, String>> dockerMachinesCache =
+            CacheBuilder.newBuilder()
+                    .expireAfterAccess(10, TimeUnit.SECONDS)
+                    .removalListener(new RemovalListener<Object, Object>() {
+                        @Override
+                        public void onRemoval(final RemovalNotification<Object, Object> removalNotification) {
+                            logger.info("Remove " + removalNotification.getKey() + " from docker-machine cache.....");
+                        }
+                    })
+                    .build(new CacheLoader<DockerMachineDictionary, Map<String, String>>() {
+                        @Override
+                        public Map<String, String> load(final DockerMachineDictionary s) throws Exception {
+                            return s.getDockerMachines();
+                        }
+                    });
+
+    private static Logger logger = LoggerFactory.getLogger(DockerMachineDictionary.class);
 }
