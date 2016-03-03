@@ -153,8 +153,7 @@
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Pull the image %s (%s)" % (deployed.name, deployed.image) if deployed.registryHost is None else "Pull the image
-                    %s (%s) from the registry %s:%s " % (deployed.name, deployed.image,deployed.registryHost, deployed.registryPort)
+                <description expression="true">"Pull the image %s (%s)" % (deployed.name, deployed.image) if deployed.registryHost is None else "Pull the image %s (%s) from the registry %s:%s " % (deployed.name, deployed.image,deployed.registryHost, deployed.registryPort)
                 </description>
                 <order>2</order>
                 <script>docker/docker-pull</script>
@@ -236,8 +235,7 @@
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Copy the file '%s' to the volume '%s' mounted for '%s' " % (deployed.name, deployed.volumeName,
-                    deployed.containerName)
+                <description expression="true">"Copy the file '%s' to the volume '%s' mounted for '%s' " % (deployed.name, deployed.volumeName,deployed.containerName)
                 </description>
                 <order>67</order>
                 <script>docker/docker-cp</script>
@@ -257,8 +255,7 @@
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Copy the folder '%s' to the volume '%s' mounted for '%s' " % (deployed.name, deployed.volumeName,
-                    deployed.containerName)
+                <description expression="true">"Copy the folder '%s' to the volume '%s' mounted for '%s' " % (deployed.name, deployed.volumeName,deployed.containerName)
                 </description>
                 <order>67</order>
                 <script>docker/docker-cp-folder</script>
