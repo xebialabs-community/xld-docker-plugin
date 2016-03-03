@@ -207,6 +207,7 @@
                   description="Specify labels for the created engine key=value" category="Engine"/>
         <property name="machineName" required="false" category="Provisioning"/>
         <property name="environmentId" required="false" category="Provisioning"/>
+        <property name="tags" required="false" kind="set_of_string" category="Provisioning" description="Deployment tags on the created ci" />
     </type>
     <!-- /Provisioning -->
 
