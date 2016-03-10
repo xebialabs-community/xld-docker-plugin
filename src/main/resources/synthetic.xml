@@ -66,7 +66,8 @@
 
     <type type="docker.Volume" deployable-type="docker.VolumeSpec" container-type="docker.RunContainer" extends="udm.BaseEmbeddedDeployed">
         <generate-deployable type="docker.VolumeSpec" extends="udm.BaseEmbeddedDeployable"/>
-        <property name="containerPath"/>
+        <property name="source" description="location on the host"/>
+        <property name="destination" description="location inside the container"/>
     </type>
 
     <type type="docker.Link" deployable-type="docker.LinkSpec" container-type="docker.RunContainer" extends="udm.BaseEmbeddedDeployed">

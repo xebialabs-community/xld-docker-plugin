@@ -33,7 +33,7 @@ echo "Running ${deployed_container.id}"
     <#assign cmdLine = cmdLine + ["--link=${link.name}:${link.alias}"]/>
 </#list>
 <#list deployed_container.volumes as volume>
-    <#assign cmdLine = cmdLine + ["-v ${volume.name}:${volume.containerPath}"]/>
+    <#assign cmdLine = cmdLine + ["-v ${volume.source}:${volume.destination}"]/>
 </#list>
 <#list deployed_container.volumesFrom as volume>
     <#assign cmdLine = cmdLine + ["--volumes-from=${volume}"]/>
