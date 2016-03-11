@@ -4,21 +4,14 @@
 # FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
 #
 
-haproxy:
-  image: eeacms/haproxy
-  links:
-  - webapp
+swarm-demo:
+  image: tauffredou/swarm-demo
+  volumes:
+  - "/var/run/docker.sock:/var/run/docker.sock"
+  - "/Users/thomas/.docker/machine/machines/mhs-demo0:/certs/"
   ports:
-  - "80:80"
-  - "1936:1936"
-
-webapp:
-  image: razvan3895/nodeserver
-
-mysqldb:
-  image: mysql:latest
+  - 8080:8080
+  container_name: swarm-demo
   environment:
-    MYSQL_DATABASE: sample
-    MYSQL_USER: mysql
-    MYSQL_PASSWORD: mysql
-    MYSQL_ROOT_PASSWORD: supersecret
+    DOCKER_HOST: tcp://192.168.99.103:3376
+    DOCKER_CERT_PATH: "/certs"

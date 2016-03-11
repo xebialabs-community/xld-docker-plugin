@@ -98,6 +98,25 @@ public class DockerComposeImporter implements ListableImporter {
                     return ci;
                 }
             })));
+
+            deployable.setProperty("volumes", newHashSet(transform(item.getVolumes(), new Function<String, ConfigurationItem>() {
+                @Override
+                public ConfigurationItem apply(final String s) {
+                    if (s.contains(":")) {
+                        final String[] split = s.split(":");
+                        String name = split[0].replace('/', '_');
+                        final String id = String.format("%s/%s", imageId, name);
+                        ConfigurationItem ci = Type.valueOf("docker.VolumeSpec").getDescriptor().newInstance(id);
+                        ci.setProperty("source", split[0]);
+                        ci.setProperty("destination", split[1]);
+                        return ci;
+                    } else {
+                        throw new RuntimeException("Cannot convert to VolumeSpec " + s);
+                    }
+                }
+            })));
+
+
             importedPackage.addDeployable(deployable);
         }
         return importedPackage;

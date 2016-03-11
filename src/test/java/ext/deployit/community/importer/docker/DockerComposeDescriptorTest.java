@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
 public class DockerComposeDescriptorTest {
 
     @org.junit.Test
-    public void testProcess() throws Exception {
+    public void testProcessTest1() throws Exception {
 
         final File yamlFile = new File("src/test/resources/docker-compose-test.yaml");
         assertTrue(yamlFile.exists());
@@ -49,5 +49,29 @@ public class DockerComposeDescriptorTest {
             }
 
         }
+    }
+
+    @org.junit.Test
+    public void testProcessTest2() throws Exception {
+
+        final File yamlFile = new File("src/test/resources/docker-compose-test-2.yaml");
+        assertTrue(yamlFile.exists());
+        DockerComposeDescriptor descriptor = new DockerComposeDescriptor(yamlFile);
+        final List<DockerComposeDescriptor.DockerComposeItem> images = descriptor.getImages();
+        assertEquals(1, images.size());
+
+        final DockerComposeDescriptor.DockerComposeItem image = images.iterator().next();
+        assertEquals("tauffredou/swarm-demo", image.getImage());
+        assertEquals(2, image.getEnvironments().size());
+        assertEquals("tcp://192.168.99.103:3376", image.getEnvironments().get("DOCKER_HOST"));
+        assertEquals("/certs", image.getEnvironments().get("DOCKER_CERT_PATH"));
+
+        assertEquals(1, image.getPorts().size());
+        assertEquals("8080:8080", image.getPorts().get(0));
+
+        assertEquals(2, image.getVolumes().size());
+        assertEquals("/var/run/docker.sock:/var/run/docker.sock", image.getVolumes().get(0));
+        assertEquals("/Users/thomas/.docker/machine/machines/mhs-demo0:/certs/", image.getVolumes().get(1));
+
     }
 }

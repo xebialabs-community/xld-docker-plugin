@@ -88,5 +88,10 @@ public class DockerComposeDescriptor {
         public Map<String, String> getEnvironments() {
             return (Map<String, String>) (properties.containsKey("environment") ? properties.get("environment") : Collections.emptyMap());
         }
+
+        public List<String> getVolumes() {
+            return (List<String>) (properties.containsKey("volumes") ? properties.get("volumes") : Collections.emptyList());
+
+        }
     }
 }
