@@ -68,6 +68,10 @@
         <generate-deployable type="docker.VolumeSpec" extends="udm.BaseEmbeddedDeployable"/>
         <property name="source" description="location on the host"/>
         <property name="destination" description="location inside the container"/>
+        <property name="mode" default="rw" description="mount mode rw/ro">
+            <rule type="regex" pattern="rw|ro"
+                  message="Mode can be either 'rw' or 'ro'. "/>
+        </property>
     </type>
 
     <type type="docker.Link" deployable-type="docker.LinkSpec" container-type="docker.RunContainer" extends="udm.BaseEmbeddedDeployed">
@@ -190,7 +194,7 @@
                   description="Specify labels for the created engine key=value"/>
         <property name="machineName" required="false" category="Provisioning"/>
         <property name="environmentId" required="false" category="Provisioning"/>
-        <property name="containerTags" required="false" kind="set_of_string" category="Provisioning" description="Deployment tags on the created ci" />
+        <property name="containerTags" required="false" kind="set_of_string" category="Provisioning" description="Deployment tags on the created ci"/>
     </type>
 
     <type type="docker.DeployedSwarmMachine" extends="udm.BaseDeployed" container-type="overthere.Host" deployable-type="docker.SwarmMachineSpec">
@@ -208,7 +212,7 @@
                   description="Specify labels for the created engine key=value" category="Engine"/>
         <property name="machineName" required="false" category="Provisioning"/>
         <property name="environmentId" required="false" category="Provisioning"/>
-        <property name="containerTags" required="false" kind="set_of_string" category="Provisioning" description="Deployment tags on the created ci" />
+        <property name="containerTags" required="false" kind="set_of_string" category="Provisioning" description="Deployment tags on the created ci"/>
     </type>
     <!-- /Provisioning -->
 

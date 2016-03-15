@@ -11,7 +11,7 @@ echo "Running ${deployed_container.id}"
 <#assign cmdLine = ["docker", "create"] />
 
 <#if (deployed_container.publishAllExposedPorts)>
-    <#assign cmdLine = cmdLine + ["-P"]/>
+    <#assign cmdLine = cmdLine + ["--publish-all"]/>
 </#if>
 <#if (deployed_container.restartAlways)>
     <#assign cmdLine = cmdLine + ["--restart=always"]/>
@@ -33,7 +33,7 @@ echo "Running ${deployed_container.id}"
     <#assign cmdLine = cmdLine + ["--link=${link.name}:${link.alias}"]/>
 </#list>
 <#list deployed_container.volumes as volume>
-    <#assign cmdLine = cmdLine + ["-v ${volume.source}:${volume.destination}"]/>
+    <#assign cmdLine = cmdLine + ["--volume=${volume.source}:${volume.destination}:${volume.mode}"]/>
 </#list>
 <#list deployed_container.volumesFrom as volume>
     <#assign cmdLine = cmdLine + ["--volumes-from=${volume}"]/>
