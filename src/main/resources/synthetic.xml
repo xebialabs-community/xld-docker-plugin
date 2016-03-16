@@ -43,6 +43,7 @@
         <property name="variables" kind="set_of_ci" referenced-type="docker.EnvironmentVariable" as-containment="true" required="false" category="Variables"/>
         <property name="extendedPrivileges" kind="boolean" required="false" default="false" category="Advanced"/>
         <property name="memory" required="false" category="Advanced"/>
+        <property name="pidNamespace" label="PID namespace to use" required="false" category="Advanced"/>
         <property name="workDirectory" required="false" kind="boolean" default="false" category="Advanced"/>
         <property name="removeOnExit" description="Automatically remove the container when it exits" kind="boolean" default="false" required="false"
                   category="Advanced"/>
@@ -126,49 +127,9 @@
         <property name="driver"/>
     </type>
 
-    <!-- smoke test -->
-
-    <type type="docker.Container" extends="udm.BaseContainer">
-        <property name="machine" kind="ci" referenced-type="docker.Machine" as-containment="true"/>
-        <property name="image"/>
-        <method name="logs" delegate="shellScript" script="docker/log" task-description="Docker logs"/>
-        <method name="inspect" delegate="shellScript" script="docker/inspect" task-description="Docker inspect"/>
-    </type>
 
 
-    <type type="smoketest.DockerRunner" extends="docker.Container">
-        <property name="powershellInstalled" kind="boolean" default="true" required="false" hidden="true"
-                  description="Enable to indicate Powershell (V3+) installed on the host associated to the Runner"/>
-    </type>
 
-    <type type="smoketest.ExecutedDockerizedHttpRequestTest" extends="udm.BaseDeployed"
-          container-type="smoketest.DockerRunner" deployable-type="smoketest.HttpRequestTest">
-        <property name="image" default="bmoussaud/ubuntu-wget"/>
-        <property name="links" kind="set_of_string" required="false" category="Network"/>
-
-        <property name="url" description="The URL to test"/>
-        <property name="expectedResponseText" size="large"
-                  description="Text that is expected to be contained in the HTTP response body, if the response code is in the 200 range. A non-2xx response code will cause the test to fail irrespective of the response body"/>
-
-        <property name="showPageInConsole" required="false" kind="boolean" default="false" category="Options"
-                  description="Show the page retrieved from the url"/>
-        <property name="headers" kind="set_of_string" required="false" category="Request Headers"/>
-        <property name="ignoreCertificateWarnings" required="false" default="true" kind="boolean" category="Options"
-                  description="If set, certificate warnings when making a connection will be ignored"/>
-        <property name="startDelay" kind="integer" default="2" category="Options" description="Time in seconds to wait before starting the execution of step"/>
-        <property name="maxRetries" kind="integer" default="5" category="Options"
-                  description="Number of times to attempt executing the step, in case it fails"/>
-        <property name="retryWaitInterval" kind="integer" default="5" category="Options" description="Time in seconds to wait before next retry"/>
-        <property name="timeout" kind="integer" default="30" category="Options" description="Timeout in seconds for a query on the specified url"/>
-        <property name="entryPoint" required="false" default="/bin/bash" hidden="true"/>
-        <property name="registryHost" required="false" category="Registry"/>
-        <property name="registryPort" required="false" kind="integer" default="5000" category="Registry"/>
-    </type>
-
-    <type-modification type="smoketest.HttpRequestTest">
-        <property name="links" kind="set_of_string" required="false" category="Network"/>
-    </type-modification>
-    <!-- /smoke test -->
 
     <!-- MySQL Database -->
     <type type="sql.DockerMySqlClient" extends="sql.MySqlClient">

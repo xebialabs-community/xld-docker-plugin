@@ -19,6 +19,9 @@ echo "Running ${deployed_container.id}"
 <#if (deployed_container.memory??)>
     <#assign cmdLine = cmdLine + ["--memory ${deployed_container.memory}" ]/>
 </#if>
+<#if (deployed_container.pidNamespace??)>
+    <#assign cmdLine = cmdLine + ["--pid=${deployed_container.pidNamespace}" ]/>
+</#if>
 <#if (deployed_container.entryPoint??)>
     <#assign cmdLine = cmdLine + ["--entrypoint ${deployed_container.entryPoint}" ]/>
 </#if>

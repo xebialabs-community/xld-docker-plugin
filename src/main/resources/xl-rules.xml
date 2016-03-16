@@ -183,30 +183,6 @@
     </rule>
 
 
-    <rule name="smoketest.RunHttpRequest.docker" scope="deployed">
-        <conditions>
-            <type>smoketest.ExecutedDockerizedHttpRequestTest</type>
-            <operation>CREATE</operation>
-            <operation>MODIFY</operation>
-            <operation>NOOP</operation>
-        </conditions>
-        <steps>
-            <os-script>
-                <script>docker/run-command</script>
-                <order>102</order>
-                <description expression="true">"Run '%s' on %s" % (deployed.name, deployed.container.name)</description>
-                <classpath-resources>
-                    <value>smoketest/execute-http-request.sh.ftl</value>
-                </classpath-resources>
-                <target-host expression="true">deployed.container.machine.host</target-host>
-                <freemarker-context>
-                    <script>smoketest/execute-http-request</script>
-                    <target expression="true">deployed.container.machine</target>
-                </freemarker-context>
-            </os-script>
-        </steps>
-    </rule>
-
     <!-- Volumes -->
     <rule name="docker.volume.create" scope="deployed">
         <conditions>

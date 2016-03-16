@@ -9,8 +9,6 @@ Place the plugin JAR file into your `SERVER_HOME/plugins` directory.
 Dependencies:
 
 * XL Deploy 4.5+ 
-* xld-smoke-test plugin 1.0.2 https://github.com/xebialabs-community/xld-smoke-test-plugin/releases/tag/1.0.2
-
 
 # Sample Applications #
 
