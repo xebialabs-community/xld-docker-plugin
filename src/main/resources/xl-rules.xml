@@ -30,7 +30,7 @@
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Create a docker network '%s'" % (deployed.name)</description>
+                <description expression="true">"Create a docker network '%s' on %s " % (deployed.name, deployed.container.name)</description>
                 <order>63</order>
                 <script>docker/docker-network-create</script>
                 <freemarker-context>
@@ -48,7 +48,7 @@
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Remove a docker network '%s'" % (previousDeployed.name)</description>
+                <description expression="true">"Remove a docker network '%s' from " % (previousDeployed.name, previous.container.name)</description>
                 <order>49</order>
                 <script>docker/docker-network-destroy</script>
                 <freemarker-context>
@@ -59,7 +59,7 @@
     </rule>
 
 
-    <rule name="docker.Container.Log" scope="deployed">
+    <rule name="docker.container.log" scope="deployed">
         <conditions>
             <type>docker.RunContainer</type>
             <operation>CREATE</operation>
@@ -73,7 +73,7 @@
                 <seconds>5</seconds>
             </wait>
             <os-script>
-                <description expression="true">"Dump the logs of the container '%s'" % (deployed.name)</description>
+                <description expression="true">"Dump the logs of the container '%s' running on %s " % (deployed.name, deployed.container.name)</description>
                 <order>82</order>
                 <script>docker/docker-log</script>
                 <freemarker-context>
@@ -83,7 +83,7 @@
         </steps>
     </rule>
 
-    <rule name="docker.Container.is.running" scope="deployed">
+    <rule name="docker.container.is.running" scope="deployed">
         <conditions>
             <type>docker.RunContainer</type>
             <operation>CREATE</operation>
@@ -97,7 +97,7 @@
                 <seconds>5</seconds>
             </wait>
             <os-script>
-                <description expression="true">"Check if the container '%s' is running" % (deployed.name)</description>
+                <description expression="true">"Check if the container '%s' is running on %s" % (deployed.name, deployed.container.name)</description>
                 <order>83</order>
                 <script>docker/docker-is-running</script>
                 <freemarker-context>
@@ -107,7 +107,7 @@
         </steps>
     </rule>
 
-    <rule name="docker.Container.Stop" scope="deployed">
+    <rule name="docker.container.stop" scope="deployed">
         <conditions>
             <type>docker.RunContainer</type>
             <operation>DESTROY</operation>
@@ -115,7 +115,7 @@
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Stop the container '%s' (%s)" % (previousDeployed.name, previousDeployed.image)</description>
+                <description expression="true">"Stop the container '%s' from '%s'" % (previousDeployed.name, previousDeployed.container.name)</description>
                 <order>35</order>
                 <script>docker/docker-stop</script>
                 <freemarker-context>
@@ -126,7 +126,7 @@
         </steps>
     </rule>
 
-    <rule name="docker.Container.Remove" scope="deployed">
+    <rule name="docker.container.remove" scope="deployed">
         <conditions>
             <type>docker.RunContainer</type>
             <operation>DESTROY</operation>
@@ -134,7 +134,7 @@
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Remove the container '%s' (%s)" % (previousDeployed.name, previousDeployed.image)</description>
+                <description expression="true">"Remove the container '%s' from '%s'" % (previousDeployed.name, previousDeployed.container.name)</description>
                 <order>36</order>
                 <script>docker/docker-rm</script>
                 <freemarker-context>
@@ -153,7 +153,7 @@
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Pull the image %s (%s)" % (deployed.name, deployed.image) if deployed.registryHost is None else "Pull the image %s (%s) from the registry %s:%s " % (deployed.name, deployed.image,deployed.registryHost, deployed.registryPort)
+                <description expression="true">"Pull the image %s (%s) on %s" % (deployed.name, deployed.image, deployed.container.name) if deployed.registryHost is None else "Pull the image %s (%s) on %s from the registry %s:%s " % (deployed.name, deployed.image,deployed.container.name, deployed.registryHost, deployed.registryPort)
                 </description>
                 <order>2</order>
                 <script>docker/docker-pull</script>
@@ -192,7 +192,7 @@
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Create the docker volume %s" % deployed.volumeName</description>
+                <description expression="true">"Create the docker volume %s on %s" % (deployed.volumeName, deployed.container.name)</description>
                 <order>57</order>
                 <script>docker/volume-create</script>
                 <freemarker-context>
@@ -251,7 +251,7 @@
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Remove the docker volume %s" % previousDeployed.volumeName</description>
+                <description expression="true">"Remove the docker volume %s from %s " % (previousDeployed.volumeName, previousDeployed.container.name)</description>
                 <order>57</order>
                 <script>docker/volume-rm</script>
                 <freemarker-context>

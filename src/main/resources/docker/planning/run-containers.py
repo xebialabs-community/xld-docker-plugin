@@ -8,6 +8,7 @@ from collections import deque
 
 GRAY, BLACK = 0, 1
 
+
 # https://gist.github.com/kachayev/5910538
 def topological(graph):
     order, enter, state = deque(), set(graph), {}
@@ -45,16 +46,16 @@ def to_delta(deployed):
 
 def create_docker_container(deployed):
     context.addStepWithCheckpoint(steps.os_script(
-        description="Create the container '%s' (%s)" % (deployed.name, deployed.image),
+        description="Create the container '%s' (%s) on %s" % (deployed.name, deployed.image, deployed.container.name),
         order=65,
         script="docker/docker-create",
-        freemarker_context={'name': deployed.name, 'target': deployed.container, "deployed_container":deployed},
+        freemarker_context={'name': deployed.name, 'target': deployed.container, "deployed_container": deployed},
         target_host=deployed.container.host), to_delta(deployed))
 
 
 def start_docker_container(deployed):
     context.addStep(steps.os_script(
-        description="Start the container '%s' (%s)" % (deployed.name, deployed.image),
+        description="Start the container '%s' (%s) on %s" % (deployed.name, deployed.image, deployed.container.name),
         order=80,
         script="docker/docker-start",
         freemarker_context={'name': deployed.name, 'target': deployed.container},
