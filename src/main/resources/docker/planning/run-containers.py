@@ -65,17 +65,14 @@ def start_docker_container(deployed):
 def sort_containers(docker_run_containers):
     graph = {}
     for d in docker_run_containers:
-        graph[d.name] = map(lambda a: a.name, d.links)
-        if d.dependencies is not None:
-            for dep in d.dependencies:
-                if dep not in graph[d.name]:
-                    graph[d.name].append(dep)
-
-    print "Container graph: %s " % graph
+        data  = set()
+        data |= set([d.id.replace(d.name, link.name)  for link in d.links])
+        data |= set([d.id.replace(d.name, dependency) for dependency in d.dependencies])
+        graph[d.id] = list(data)
 
     sorted_docker_run_containers = []
     for x in reversed(topological(graph)):
-        sorted_docker_run_containers.append(filter(lambda drc: drc.name == x, docker_run_containers)[0])
+        sorted_docker_run_containers.append(filter(lambda drc: drc.id == x, docker_run_containers)[0])
     return sorted_docker_run_containers
 
 
