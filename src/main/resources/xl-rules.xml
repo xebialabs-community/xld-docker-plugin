@@ -48,7 +48,7 @@
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Remove a docker network '%s' from " % (previousDeployed.name, previous.container.name)</description>
+                <description expression="true">"Remove a docker network '%s' from %s" % (previousDeployed.name, previousDeployed.container.name)</description>
                 <order>49</order>
                 <script>docker/docker-network-destroy</script>
                 <freemarker-context>

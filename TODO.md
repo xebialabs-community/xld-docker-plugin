@@ -18,4 +18,8 @@
 - http://technologyconversations.com/2015/11/25/deploying-containers-with-docker-swarm-and-docker-networking/
 - http://www.javacodegeeks.com/2015/11/deploying-containers-docker-swarm-docker-networking.html
  
+* docker & Swarm with AZURE
+- https://blogs.msdn.microsoft.com/jcorioland/2016/01/14/create-a-docker-swarm-cluster-using-azure-container-service/
+- https://blogs.msdn.microsoft.com/stephe/2016/03/04/tutoriel-premiers-pas-de-dveloppeur-avec-docker-azure-et-visual-studio-33/
+
  
