@@ -31,7 +31,7 @@ public class DockerComposeImporter implements ListableImporter {
         final String[] list = directory.list(new FilenameFilter() {
             @Override
             public boolean accept(final File dir, final String name) {
-                return name.endsWith(".yaml");
+                return name.endsWith(".yaml") || name.endsWith(".yml");
             }
         });
         return newArrayList(list);
@@ -39,13 +39,14 @@ public class DockerComposeImporter implements ListableImporter {
 
     @Override
     public boolean canHandle(final ImportSource source) {
-        return source.getFile().getAbsolutePath().endsWith(".yaml");
+        final String absolutePath = source.getFile().getAbsolutePath();
+        return absolutePath.endsWith(".yaml") || absolutePath.endsWith("yml");
     }
 
     @Override
     public PackageInfo preparePackage(final ImportSource source, final ImportingContext context) {
         final PackageInfo packageInfo = new PackageInfo(source);
-        packageInfo.setApplicationName(source.getFile().getName().replace(".yaml", ""));
+        packageInfo.setApplicationName(source.getFile().getName().replace(".yaml", "").replace(".yml", ""));
         packageInfo.setApplicationVersion("V" + System.currentTimeMillis());
         context.setAttribute("temporaryFiles", Lists.<TFile>newArrayList());
         return packageInfo;
