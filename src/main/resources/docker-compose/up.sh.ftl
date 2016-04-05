@@ -7,4 +7,9 @@
 -->
 <#include "/docker/setup-docker.ftl">
 
+<#list deployed.placeholders?keys as k>
+export ${k}=${deployed.placeholders[k]}
+</#list>
+
 docker-compose --file ${composed.file.path} --project-name ${application} up <#if (deployed.forceRecreate)>--force-recreate</#if> --no-color --no-build -d
+
