@@ -9,10 +9,10 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-import com.xebialabs.deployit.plugin.api.reflect.Type;
 import com.xebialabs.deployit.plugin.api.udm.Application;
 import com.xebialabs.deployit.plugin.api.udm.ConfigurationItem;
 import com.xebialabs.deployit.plugin.api.udm.Deployable;
@@ -26,6 +26,9 @@ import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Sets.newHashSet;
 
 public class DockerComposeImporter implements ListableImporter {
+
+    private RepositoryService repositoryService;
+
     @Override
     public List<String> list(final File directory) {
         final String[] list = directory.list(new FilenameFilter() {
@@ -55,22 +58,22 @@ public class DockerComposeImporter implements ListableImporter {
     @Override
     public ImportedPackage importEntities(final PackageInfo packageInfo, final ImportingContext context) {
 
-        Application application = Type.valueOf(Application.class).getDescriptor().newInstance(packageInfo.getApplicationId());
-        Version version = Type.valueOf("udm.DeploymentPackage").getDescriptor().newInstance(String.format("%s/%s", application.getId(), packageInfo.getApplicationVersion()));
+        Application application = getRepositoryService().newApplication("udm.Application", packageInfo.getApplicationId());
+        Version version = getRepositoryService().newVersion("udm.DeploymentPackage", String.format("%s/%s", application.getId(), packageInfo.getApplicationVersion()));
 
         final ImportedPackage importedPackage = new ImportedPackage(packageInfo, application, version);
         final DockerComposeDescriptor descriptor = new DockerComposeDescriptor(packageInfo.getSource().getFile());
         for (DockerComposeDescriptor.DockerComposeItem item : descriptor.getImages()) {
             final String imageId = String.format("%s/%s", version.getId(), item.getName());
-            Deployable deployable = Type.valueOf("docker.Image").getDescriptor().newInstance(imageId);
-            deployable.setProperty("image", item.getImage());
+            Deployable deployable = (Deployable) newCI("docker.Image", imageId);
+            deployable.setProperty("image", translateToPropertyPlaceholder(item.getImage()));
             deployable.setProperty("ports", newHashSet(transform(item.getPorts(), new Function<String, ConfigurationItem>() {
                 @Override
                 public ConfigurationItem apply(final String s) {
                     final String id = String.format("%s/%s", imageId, toCiName(s));
-                    ConfigurationItem ci = Type.valueOf("docker.PortSpec").getDescriptor().newInstance(id);
-                    ci.setProperty("hostPort", s.split(":")[0]);
-                    ci.setProperty("containerPort", s.split(":")[1]);
+                    ConfigurationItem ci = newCI("docker.PortSpec", id);
+                    ci.setProperty("hostPort", translateToPropertyPlaceholder(s.split(":")[0]));
+                    ci.setProperty("containerPort", translateToPropertyPlaceholder(s.split(":")[1]));
                     return ci;
                 }
             })));
@@ -79,13 +82,13 @@ public class DockerComposeImporter implements ListableImporter {
                 public ConfigurationItem apply(final String s) {
                     if (s.contains(":")) {
                         final String id = String.format("%s/%s", imageId, s.split(":")[0]);
-                        ConfigurationItem ci = Type.valueOf("docker.LinkSpec").getDescriptor().newInstance(id);
-                        ci.setProperty("alias", s.split(":")[1]);
+                        ConfigurationItem ci = newCI("docker.LinkSpec", id);
+                        ci.setProperty("alias", translateToPropertyPlaceholder(s.split(":")[1]));
                         return ci;
                     } else {
                         final String id = String.format("%s/%s", imageId, toCiName(s));
-                        ConfigurationItem ci = Type.valueOf("docker.LinkSpec").getDescriptor().newInstance(id);
-                        ci.setProperty("alias", s);
+                        ConfigurationItem ci = newCI("docker.LinkSpec", id);
+                        ci.setProperty("alias", translateToPropertyPlaceholder(s));
                         return ci;
                     }
                 }
@@ -94,8 +97,8 @@ public class DockerComposeImporter implements ListableImporter {
                 @Override
                 public ConfigurationItem apply(final Map.Entry<String, String> s) {
                     final String id = String.format("%s/%s", imageId, toCiName(s.getKey()));
-                    ConfigurationItem ci = Type.valueOf("docker.EnvironmentVariableSpec").getDescriptor().newInstance(id);
-                    ci.setProperty("value", s.getValue());
+                    ConfigurationItem ci = newCI("docker.EnvironmentVariableSpec", id);
+                    ci.setProperty("value", translateToPropertyPlaceholder(s.getValue()));
                     return ci;
                 }
             })));
@@ -105,11 +108,11 @@ public class DockerComposeImporter implements ListableImporter {
                 public ConfigurationItem apply(final String s) {
                     if (s.contains(":")) {
                         final String[] split = s.split(":");
-                        String name = split[0].replace('/', '_');
+                        String name = translateToPropertyPlaceholder(split[0].replace('/', '_'));
                         final String id = String.format("%s/%s", imageId, name);
-                        ConfigurationItem ci = Type.valueOf("docker.VolumeSpec").getDescriptor().newInstance(id);
-                        ci.setProperty("source", split[0]);
-                        ci.setProperty("destination", split[1]);
+                        ConfigurationItem ci = newCI("docker.VolumeSpec", id);
+                        ci.setProperty("source", translateToPropertyPlaceholder(split[0]));
+                        ci.setProperty("destination", translateToPropertyPlaceholder(split[1]));
                         return ci;
                     } else {
                         throw new RuntimeException("Cannot convert to VolumeSpec " + s);
@@ -123,12 +126,46 @@ public class DockerComposeImporter implements ListableImporter {
         return importedPackage;
     }
 
+    private ConfigurationItem newCI(final String type, final String id) {
+        return getRepositoryService().newCI(type, id);
+    }
+
+    /*
+    pattern 1 $XX => {{XX}}
+    pattern 2 ${XX} => {{XX}}
+    $$XX => $$XX
+     */
+    static String translateToPropertyPlaceholder(String var) {
+        if (var.contains("$$")) {
+            return var;
+        }
+
+        Pattern pattern1 = Pattern.compile("\\$([a-zA-Z1-9\\._]+)");
+        String var1 = pattern1.matcher(var).replaceAll("{{$1}}");
+
+        Pattern pattern2 = Pattern.compile("\\$(\\{[^\\}]+\\})");
+        final String var2 = pattern2.matcher(var1).replaceAll("{$1}");
+
+        return var2;
+    }
+
     @Override
     public void cleanUp(final PackageInfo packageInfo, final ImportingContext context) {
 
     }
 
+    public RepositoryService getRepositoryService() {
+        if (repositoryService == null) {
+            repositoryService = new DefaultRepositoryService();
+        }
+        return repositoryService;
+    }
+
+    public void setRepositoryService(final RepositoryService repositoryService) {
+        this.repositoryService = repositoryService;
+    }
+
     private String toCiName(String s) {
-        return s.replace(":", "_");
+        return translateToPropertyPlaceholder(s.replace(":", "_"));
     }
 }
