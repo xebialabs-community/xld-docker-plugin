@@ -20,11 +20,11 @@ import com.google.common.collect.Lists;
 public class DockerComposeDescriptor {
 
     private final File yamlFile;
-    private List<DockerComposeItem> images;
+    private List<DockerConfigurationItem> items;
 
     public DockerComposeDescriptor(final File yamlFile) {
         this.yamlFile = yamlFile;
-        this.images = Lists.newArrayList();
+        this.items = Lists.newArrayList();
         process();
     }
 
@@ -33,10 +33,32 @@ public class DockerComposeDescriptor {
         try {
             reader = new YamlReader(new FileReader(yamlFile));
             Map items = (Map) reader.read();
-            System.out.println(items);
-            for (Object o : items.keySet()) {
-                images.add(new DockerComposeItem(o.toString(), (Map) items.get(o)));
+            //System.out.println(items);
+            if (items.containsKey("version") && items.get("version").equals("2")) {
+                if (items.containsKey("services")) {
+                    final Map services = (Map) items.get("services");
+                    for (Object o : services.keySet()) {
+                        this.items.add(new DockerComposeImageItem(o.toString(), toMap(services.get(o))));
+                    }
+                }
+                if (items.containsKey("volumes")) {
+                    final Map volumes = (Map) items.get("volumes");
+                    for (Object o : volumes.keySet()) {
+                        this.items.add(new DockerComposeVolumeItem(o.toString(), toMap(volumes.get(o))));
+                    }
+                }
+                if (items.containsKey("networks")) {
+                    final Map networks = (Map) items.get("networks");
+                    for (Object o : networks.keySet()) {
+                        this.items.add(new DockerComposeNetworkItem(o.toString(), toMap(networks.get(o))));
+                    }
+                }
+            } else {
+                for (Object o : items.keySet()) {
+                    this.items.add(new DockerComposeImageItem(o.toString(), (Map) items.get(o)));
+                }
             }
+
 
         } catch (YamlException e) {
             throw new RuntimeException("Yaml parsing failed", e);
@@ -51,47 +73,24 @@ public class DockerComposeDescriptor {
         }
     }
 
-    public List<DockerComposeItem> getImages() {
-        return images;
+    private Map toMap(Object o) {
+        if (o instanceof Map) {
+            Map map = (Map) o;
+            return map;
+        }
+        return Collections.emptyMap();
     }
 
-    static class DockerComposeItem {
-        final private String name;
-        final private Map properties;
-
-        DockerComposeItem(final String name, final Map properties) {
-            this.name = name;
-            this.properties = properties;
-        }
-
-        public String getImage() {
-            return (String) properties.get("image");
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Map getProperties() {
-            return properties;
-        }
-
-        public List<String> getPorts() {
-            return (List<String>) (properties.containsKey("ports") ? properties.get("ports") : Collections.emptyList());
-
-        }
-
-        public List<String> getLinks() {
-            return (List<String>) (properties.containsKey("links") ? properties.get("links") : Collections.emptyList());
-        }
-
-        public Map<String, String> getEnvironments() {
-            return (Map<String, String>) (properties.containsKey("environment") ? properties.get("environment") : Collections.emptyMap());
-        }
-
-        public List<String> getVolumes() {
-            return (List<String>) (properties.containsKey("volumes") ? properties.get("volumes") : Collections.emptyList());
-
-        }
+    public List<DockerConfigurationItem> getItems() {
+        return items;
     }
+
+    public DockerConfigurationItem getItemByName(String name) {
+        for (DockerConfigurationItem item : items) {
+            if (item.getName().equals(name))
+                return item;
+        }
+        throw new RuntimeException("Image not found ['" + name + "']");
+    }
+
 }
