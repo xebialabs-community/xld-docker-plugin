@@ -6,5 +6,5 @@
 
 -->
 <#include "/docker/setup-docker.ftl">
-echo "Start the container ${name}"
-docker start ${name}
+echo "Start the container ${container_name}"
+docker start ${container_name}

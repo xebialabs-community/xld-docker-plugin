@@ -4,6 +4,11 @@
 # FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
 #
 
+
+def container_name(name, deployedApplication):
+    return "%s_%s_%s" % (deployedApplication.version.application.name, deployedApplication.version.name, name)
+
+
 def stop_start_docker_container(docker_container):
     if docker_container is None:
         return
@@ -12,21 +17,21 @@ def stop_start_docker_container(docker_container):
         description="Stopping docker container %s" % docker_container.name,
         order=20,
         script="docker/docker-stop",
-        freemarker_context={'name': docker_container.name, 'target': docker_container.container},
+        freemarker_context={'container_name': container_name(docker_container.name, deployedApplication), 'target': docker_container.container},
         target_host=docker_container.container.host)
     )
     context.addStep(steps.os_script(
         description="Starting docker server %s" % docker_container.name,
         order=80,
         script="docker/docker-start",
-        freemarker_context={'name': docker_container.name, 'target': docker_container.container},
+        freemarker_context={'container_name': container_name(docker_container.name, deployedApplication), 'target': docker_container.container},
         target_host=docker_container.container.host))
 
 
-def containers(modify_data_volume, noop_delta_container):
+def containers(p_modify_data_volume, p_noop_delta_container):
     candidates = []
-    for delta_v in modify_data_volume:
-        for delta in noop_delta_container:
+    for delta_v in p_modify_data_volume:
+        for delta in p_noop_delta_container:
             container = delta.deployed
             if container.name == delta_v.deployedOrPrevious.containerName:
                 print "Add container %s to the candidates " % container

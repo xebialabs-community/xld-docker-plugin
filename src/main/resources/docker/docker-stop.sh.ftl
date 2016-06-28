@@ -6,5 +6,5 @@
 
 -->
 <#include "/docker/setup-docker.ftl">
-echo "Stop the container ${name}, kill it after 10 seconds"
-docker stop --time=10 ${name}
+echo "Stop the container ${container_name}, kill it after 10 seconds"
+docker stop --time=10 ${container_name}

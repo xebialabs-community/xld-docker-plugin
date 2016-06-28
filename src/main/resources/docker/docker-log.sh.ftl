@@ -6,4 +6,4 @@
 
 -->
 <#include "/docker/setup-docker.ftl">
-docker logs ${deployed.name}
+docker logs ${container_name}

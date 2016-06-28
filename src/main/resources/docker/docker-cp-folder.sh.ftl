@@ -6,4 +6,4 @@
 
 -->
 <#include "/docker/setup-docker.ftl">
-docker cp ${deployed.file.path}/. ${deployed.containerName}:${deployed.containerPath}
+docker cp ${deployed.file.path}/. ${container_name}:${deployed.containerPath}

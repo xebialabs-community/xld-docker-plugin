@@ -6,5 +6,5 @@
 
 -->
 <#include "/docker/setup-docker.ftl">
-echo "Remove the container ${name}"
-docker rm ${name}
+echo "Remove the container ${container_name}"
+docker rm ${container_name}

@@ -78,6 +78,7 @@
     <type type="docker.Link" deployable-type="docker.LinkSpec" container-type="docker.RunContainer" extends="udm.BaseEmbeddedDeployed">
         <generate-deployable type="docker.LinkSpec" extends="udm.BaseEmbeddedDeployable"/>
         <property name="alias" required="false"/>
+        <property name="prefixContainerName" kind="boolean" default="true"/>
     </type>
 
     <type type="docker.Port" deployable-type="docker.PortSpec" container-type="docker.RunContainer" extends="udm.BaseEmbeddedDeployed">

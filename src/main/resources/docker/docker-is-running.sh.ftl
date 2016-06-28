@@ -7,6 +7,6 @@
 -->
 <#include "/docker/setup-docker.ftl">
 echo "Check if ${deployed.name} is running ....."
-echo "docker inspect -f {{.State.Running}} ${deployed.name}"
-docker inspect -f {{.State.Running}} ${deployed.name}
-docker inspect -f {{.State.Running}} ${deployed.name}  | grep 'true'
+echo "docker inspect -f {{.State.Running}} ${container_name}"
+docker inspect -f {{.State.Running}} ${container_name}
+docker inspect -f {{.State.Running}} ${container_name}  | grep 'true'

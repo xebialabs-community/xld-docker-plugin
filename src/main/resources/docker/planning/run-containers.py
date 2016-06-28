@@ -44,12 +44,20 @@ def to_delta(deployed):
         raise Exception("Too many deltas %s for this deployed %s " % (deployed, deployed_deltas))
 
 
+def container_name(name, deployedApplication):
+    return "%s_%s_%s" % (deployedApplication.version.application.name, deployedApplication.version.name, name)
+
+
+def container_prefix(deployedApplication):
+    return "%s_%s_" % (deployedApplication.version.application.name, deployedApplication.version.name)
+
+
 def create_docker_container(deployed):
     context.addStepWithCheckpoint(steps.os_script(
         description="Create the container '%s' (%s) on %s" % (deployed.name, deployed.image, deployed.container.name),
         order=65,
         script="docker/docker-create",
-        freemarker_context={'name': deployed.name, 'target': deployed.container, "deployed_container": deployed},
+        freemarker_context={'container_name': container_name(deployed.name, deployedApplication), 'target': deployed.container, "docker_container": deployed, 'container_prefix': container_prefix(deployedApplication)},
         target_host=deployed.container.host), to_delta(deployed))
 
 
@@ -58,15 +66,15 @@ def start_docker_container(deployed):
         description="Start the container '%s' (%s) on %s" % (deployed.name, deployed.image, deployed.container.name),
         order=80,
         script="docker/docker-start",
-        freemarker_context={'name': deployed.name, 'target': deployed.container},
+        freemarker_context={'container_name': container_name(deployed.name, deployedApplication), 'target': deployed.container, 'container_prefix': container_prefix(deployedApplication)},
         target_host=deployed.container.host))
 
 
 def sort_containers(docker_run_containers):
     graph = {}
     for d in docker_run_containers:
-        data  = set()
-        data |= set([d.id.replace(d.name, link.name)  for link in d.links])
+        data = set()
+        data |= set([d.id.replace(d.name, link.name) for link in d.links])
         data |= set([d.id.replace(d.name, dependency) for dependency in d.dependencies])
         graph[d.id] = list(data)
 
