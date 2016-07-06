@@ -5,7 +5,7 @@
     FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
 
 -->
-
+<#if (target.setEnvironmentVariables)>
 <#if (target.dynamicParameters) >
     <#if (target.swarmMaster)>
     eval "$(docker-machine env ${target.name} --swarm)"
@@ -24,4 +24,7 @@ export DOCKER_HOST="tcp://${target.address}:${target.port}"
 export DOCKER_CERT_PATH="${target.certificatePath}"
 export DOCKER_MACHINE_NAME=${target.name}
     </#if>
+</#if>
+</#else>
+# Stop Managing the environment variables ;-)
 </#if>
