@@ -107,6 +107,10 @@
         </steps>
     </rule>
 
+    <rule name="docker.port.test" scope="plan">
+        <planning-script-path>docker/planning/docker-test-ports.py</planning-script-path>
+    </rule>
+
     <rule name="docker.container.stop" scope="deployed">
         <conditions>
             <type>docker.RunContainer</type>
@@ -153,7 +157,8 @@
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Pull the image %s (%s) on %s" % (deployed.name, deployed.image, deployed.container.name) if deployed.registryHost is None else "Pull the image %s (%s) on %s from the registry %s:%s " % (deployed.name, deployed.image,deployed.container.name, deployed.registryHost, deployed.registryPort)
+                <description expression="true">"Pull the image %s (%s) on %s" % (deployed.name, deployed.image, deployed.container.name) if deployed.registryHost is None else "Pull the image %s (%s) on %s from the registry %s:%s " % (deployed.name,
+                    deployed.image,deployed.container.name, deployed.registryHost, deployed.registryPort)
                 </description>
                 <order>2</order>
                 <script>docker/docker-pull</script>

@@ -25,6 +25,6 @@ export DOCKER_CERT_PATH="${target.certificatePath}"
 export DOCKER_MACHINE_NAME=${target.name}
     </#if>
 </#if>
-</#else>
+<#else>
 # Stop Managing the environment variables ;-)
 </#if>
