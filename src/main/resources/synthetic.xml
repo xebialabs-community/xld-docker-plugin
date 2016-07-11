@@ -86,7 +86,7 @@
         <generate-deployable type="docker.PortSpec" extends="udm.BaseEmbeddedDeployable"/>
         <property name="hostPort" required="false" kind="integer"/>
         <property name="containerPort" kind="integer"/>
-        <property name="protocol" required="false" description="e.g udp or tcp"/>
+        <property name="protocol" default="tcp" required="false" description="e.g udp or tcp"/>
         <property name="testPort" kind="boolean" category="Advanced" default="false" required="false" description="Test if the port is open once the container has been started."/>
     </type>
 
