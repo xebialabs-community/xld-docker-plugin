@@ -10,6 +10,10 @@
 <#assign registry=""/>
 <#if (deployed.registryHost??)>
     <#assign registry="${deployed.registryHost}:${deployed.registryPort}/"/>
+	<#if (deployed.registryUsername??) &&  (deployed.registryPassword??) >
+		echo docker login -u=${deployed.registryUsername} -p=${deployed.registryPassword} ${registry}
+		docker login -u=${deployed.registryUsername} -p=${deployed.registryPassword} ${registry}
+	</#if>
 </#if>
 
 if docker inspect ${deployed.image} > /dev/null ; then

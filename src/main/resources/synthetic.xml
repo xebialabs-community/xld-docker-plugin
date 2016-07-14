@@ -57,6 +57,9 @@
                   category="Advanced"/>
         <property name="registryHost" required="false" category="Registry"/>
         <property name="registryPort" required="false" kind="integer" default="5000" category="Registry"/>
+		<property name="registryUsername" required="false" category="Registry" description="Registry username"/>
+		<property name="registryPassword" required="false" password="true" category="Registry" description="Registry username"/>
+		<property name="logDriver" required="false" category="Log" description="Logging driver for container "/>
     </type>
 
     <type-modification type="docker.Image">

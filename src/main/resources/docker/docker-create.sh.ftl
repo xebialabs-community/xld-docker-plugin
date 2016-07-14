@@ -22,6 +22,9 @@ echo "Running ${deployed_container.id}"
 <#if (deployed_container.pidNamespace??)>
     <#assign cmdLine = cmdLine + ["--pid=${deployed_container.pidNamespace}" ]/>
 </#if>
+<#if (deployed_container.logDriver??)>
+    <#assign cmdLine = cmdLine + ["--log-driver=${deployed_container.logDriver}" ]/>
+</#if>
 <#if (deployed_container.entryPoint??)>
     <#assign cmdLine = cmdLine + ["--entrypoint ${deployed_container.entryPoint}" ]/>
 </#if>
