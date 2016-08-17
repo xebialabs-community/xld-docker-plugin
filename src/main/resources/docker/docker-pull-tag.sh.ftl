@@ -8,8 +8,8 @@
 <#include "/docker/setup-docker.ftl">
 
 <#assign registry="${deployed.registryHost}:${deployed.registryPort}/"/>
-echo docker tag -f ${registry}${deployed.image} ${deployed.image}
-docker tag -f ${registry}${deployed.image} ${deployed.image}
+echo docker tag  ${registry}${deployed.image} ${deployed.image}
+docker tag ${registry}${deployed.image} ${deployed.image}
 
 
 
