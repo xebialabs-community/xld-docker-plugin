@@ -16,6 +16,9 @@ echo "Running ${deployed_container.id}"
 <#if (deployed_container.restartAlways)>
     <#assign cmdLine = cmdLine + ["--restart=always"]/>
 </#if>
+<#if (deployed_container.extendedPrivileges)>
+    <#assign cmdLine = cmdLine + ["--privileged"]/>
+</#if>
 <#if (deployed_container.memory??)>
     <#assign cmdLine = cmdLine + ["--memory ${deployed_container.memory}" ]/>
 </#if>
