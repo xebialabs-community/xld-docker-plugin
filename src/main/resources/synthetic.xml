@@ -18,7 +18,7 @@
         <property name="certificatePath" required="false"/>
         <property label="TLS Verify" name="tls_verify" default="true" kind="boolean" required="false"/>
         <property name="dynamicParameters" kind="boolean" default="false" required="false" category="Advanced"
-                  description="use the docker-machnine env command line to generate the connection information"/>
+                  description="use the docker-machine env command line to generate the connection information"/>
         <property name="setEnvironmentVariables" kind="boolean" default="true" required="false" category="Advanced"
                   description="set the management variables before call the docker commands"/>
         <property name="provider" default="virtualbox" category="Advanced"/>
