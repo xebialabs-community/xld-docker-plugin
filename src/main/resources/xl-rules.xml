@@ -517,4 +517,79 @@
 
     <!-- /Docker Machine -->
 
+
+    <!-- Docker Swarm 1.12 -->
+
+    <rule name="docker.swarm.service.create" scope="deployed">
+        <conditions>
+            <type>docker.SwarmService</type>
+            <operation>CREATE</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Create the '%s' service onto the '%s' swarm cluster" % (deployed.name, deployed.container.name)</description>
+                <order>65</order>
+                <script>docker-swarm/create</script>
+                <freemarker-context>
+                    <target expression="true">deployed.container</target>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <rule name="docker.swarm.service.delete" scope="deployed">
+        <conditions>
+            <type>docker.SwarmService</type>
+            <operation>DESTROY</operation>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Delete the '%s' service from the '%s' swarm cluster" % (previousDeployed.name, previousDeployed.container.name)</description>
+                <order>40</order>
+                <script>docker-swarm/delete</script>
+                <freemarker-context>
+                    <target expression="true">previousDeployed.container</target>
+                </freemarker-context>
+            </os-script>
+        </steps>
+    </rule>
+
+    <rule name="docker.swarm.service.update" scope="deployed">
+        <conditions>
+            <type>docker.SwarmService</type>
+            <operation>MODIFY</operation>
+            <expression>deployed.rollingUpdate is False</expression>
+        </conditions>
+        <steps>
+            <os-script>
+                <description expression="true">"Delete the '%s' service from the '%s' swarm cluster" % (previousDeployed.name, previousDeployed.container.name)</description>
+                <order>40</order>
+                <script>docker-swarm/delete</script>
+                <freemarker-context>
+                    <target expression="true">previousDeployed.container</target>
+                </freemarker-context>
+            </os-script>
+            <os-script>
+                <description expression="true">"Create the '%s' service onto the '%s' swarm cluster" % (deployed.name, deployed.container.name)</description>
+                <order>65</order>
+                <script>docker-swarm/create</script>
+                <freemarker-context>
+                    <target expression="true">deployed.container</target>
+                </freemarker-context>
+            </os-script>
+
+        </steps>
+    </rule>
+
+    <rule name="docker.swarm.service.update.planning" scope="deployed">
+        <conditions>
+            <type>docker.SwarmService</type>
+            <operation>MODIFY</operation>
+            <expression>deployed.rollingUpdate is True</expression>
+        </conditions>
+        <planning-script-path>docker-swarm/planning/service.py</planning-script-path>
+    </rule>
+
+    <!-- /Docker Swarm 1.12 -->
+
 </rules>

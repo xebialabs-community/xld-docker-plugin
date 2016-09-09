@@ -57,9 +57,9 @@
                   category="Advanced"/>
         <property name="registryHost" required="false" category="Registry"/>
         <property name="registryPort" required="false" kind="integer" default="5000" category="Registry"/>
-		<property name="registryUsername" required="false" category="Registry" description="Registry username"/>
-		<property name="registryPassword" required="false" password="true" category="Registry" description="Registry username"/>
-		<property name="logDriver" required="false" category="Log" description="Logging driver for container "/>
+        <property name="registryUsername" required="false" category="Registry" description="Registry username"/>
+        <property name="registryPassword" required="false" password="true" category="Registry" description="Registry username"/>
+        <property name="logDriver" required="false" category="Log" description="Logging driver for container "/>
     </type>
 
     <type-modification type="docker.Image">
@@ -134,7 +134,59 @@
     </type>
 
 
+    <!-- Docker Swarm Service -->
+    <type type="docker.SwarmNode" extends="docker.Machine">
+        <property name="swarmManager" default="true" kind="boolean" required="false" category="Swarm" description="else it is a worker"/>
+    </type>
 
+    <type type="docker.SwarmService" extends="udm.BaseDeployed" deployable-type="docker.SwarmServiceSpec" container-type="docker.SwarmNode">
+        <generate-deployable type="docker.SwarmServiceSpec" extends="udm.BaseDeployable"/>
+        <property name="image"/>
+        <property name="replicas" kind="integer" description="Number of tasks"/>
+        <property name="rollingUpdate" kind="boolean" category="Advanced" default="true" required="false" description="use a rolling update if there are modications"/>
+        <property name="updateDelay" required="false" description="Delay between updates eg 10s"/>
+        <property name="mode" default="replicated" description=" Service mode (replicated or global)"/>
+        <property name="command" required="false"/>
+        <property name="args" required="false"/>
+        <property name="labels" kind="set_of_string" required="false" category="Labels"/>
+        <property name="network" required="false" category="Network"/>
+        <property name="ports" kind="set_of_ci" referenced-type="docker.SwarmServicePort" as-containment="true" required="false" category="Network"/>
+        <property name="dependencies" kind="list_of_string" required="false" category="Deployment" description="list of containers that should be created or started before."/>
+        <property name="variables" kind="set_of_ci" referenced-type="docker.SwarmEnvironmentVariable" as-containment="true" required="false" category="Variables"/>
+        <property name="limitMemory" required="false" category="Advanced"/>
+        <property name="reserveMemory" required="false" category="Advanced"/>
+        <property name="workDirectory" required="false" kind="boolean" default="false" category="Advanced"/>
+        <property name="dumpLogsAfterStartup" kind="boolean" default="true" description="Generate a step to dump log after start up the container" category="Advanced"/>
+        <property name="checkContainerIsRunning" kind="boolean" default="true" description="Generate a step to check whether the container is up and running." category="Advanced"/>
+        <property name="registryHost" required="false" category="Registry"/>
+        <property name="registryPort" required="false" kind="integer" default="5000" category="Registry"/>
+        <property name="registryUsername" required="false" category="Registry" description="Registry username"/>
+        <property name="registryPassword" required="false" password="true" category="Registry" description="Registry username"/>
+        <property name="logDriver" required="false" category="Log" description="Logging driver for container "/>
+        <property name="logOpts" required="false" category="Log" kind="list_of_string" description="Logging options for container "/>
+    </type>
+
+
+    <type-modification type="docker.SwarmServiceSpec">
+        <property name="ports" kind="set_of_ci" referenced-type="docker.SwarmServicePortSpec" as-containment="true" required="false" category="Network"/>
+        <property name="variables" kind="set_of_ci" referenced-type="docker.SwarmEnvironmentVariableSpec" as-containment="true" required="false" category="Variables"/>
+    </type-modification>
+
+    <type type="docker.SwarmServicePort" deployable-type="docker.SwarmServicePortSpec" container-type="docker.SwarmService" extends="udm.BaseEmbeddedDeployed">
+        <generate-deployable type="docker.SwarmServicePortSpec" extends="udm.BaseEmbeddedDeployable"/>
+        <property name="hostPort" required="false" kind="integer"/>
+        <property name="containerPort" kind="integer"/>
+        <property name="protocol" default="tcp" required="false" description="e.g udp or tcp"/>
+        <property name="testPort" kind="boolean" category="Advanced" default="false" required="false" description="Test if the port is open once the container has been started."/>
+    </type>
+
+    <type type="docker.SwarmEnvironmentVariable" deployable-type="docker.SwarmEnvironmentVariableSpec" container-type="docker.SwarmService"
+          extends="udm.BaseEmbeddedDeployed">
+        <generate-deployable type="docker.SwarmEnvironmentVariableSpec" extends="udm.BaseEmbeddedDeployable"/>
+        <property name="value"/>
+        <property name="separator" default="=" category="Advanced"
+                  description="most of the time, it is '=' but something it can be ':' e.g. constraint:storage==ssd"/>
+    </type>
 
 
     <!-- MySQL Database -->

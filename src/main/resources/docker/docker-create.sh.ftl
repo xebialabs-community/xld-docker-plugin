@@ -31,7 +31,7 @@ echo "Running ${deployed_container.id}"
 <#if (deployed_container.entryPoint??)>
     <#assign cmdLine = cmdLine + ["--entrypoint ${deployed_container.entryPoint}" ]/>
 </#if>
-<#list deployed_container.ports as port>
+    <#list deployed_container.ports as port>
     <#assign cmdLine = cmdLine + ["--publish ${port.hostPort}:${port.containerPort}/${port.protocol}"]/>
 </#list>
 <#list deployed_container.links as link>
