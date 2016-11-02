@@ -392,7 +392,7 @@
                     <context_key expression="true">"data_%s" % deployed.name</context_key>
                     <ci_type>docker.Machine</ci_type>
                     <ci_id expression="true">"/".join([deployed.container.id,deployed.machineName])</ci_id>
-                    <ci_properties expression="true">{'provider': deployed.driver,'dynamicParameters':True, 'swarmMaster': False, 'tags': deployed.containerTags}
+                    <ci_properties expression="true">{'provider': deployed.driver,'dynamicParameters':True, 'tags': deployed.containerTags}
                     </ci_properties>
                 </jython-context>
             </jython>

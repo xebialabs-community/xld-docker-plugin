@@ -22,8 +22,6 @@
         <property name="setEnvironmentVariables" kind="boolean" default="true" required="false" category="Advanced"
                   description="set the management variables before call the docker commands"/>
         <property name="provider" default="virtualbox" category="Advanced"/>
-        <property name="swarmMaster" default="false" kind="boolean" required="false" category="Swarm"/>
-        <property name="swarmPort" kind="integer" default="3376" required="false" category="Swarm"/>
     </type>
 
 
@@ -136,7 +134,6 @@
 
     <!-- Docker Swarm Service -->
     <type type="docker.SwarmNode" extends="docker.Machine">
-        <property name="swarmManager" default="true" kind="boolean" required="false" category="Swarm" description="else it is a worker"/>
     </type>
 
     <type type="docker.SwarmService" extends="udm.BaseDeployed" deployable-type="docker.SwarmServiceSpec" container-type="docker.SwarmNode">
