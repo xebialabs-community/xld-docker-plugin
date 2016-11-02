@@ -7,8 +7,8 @@
 -->
 <#if (target.setEnvironmentVariables)>
 <#if (target.dynamicParameters) >
+    echo "call the docker-machine commandline: docker-machine env ${target.name}"
     eval "$(docker-machine env ${target.name})"
-    </#if>
 <#else>
 export DOCKER_TLS_VERIFY="${target.tls_verify?string('1', '0')}"
 export DOCKER_HOST="tcp://${target.address}:${target.port}"
