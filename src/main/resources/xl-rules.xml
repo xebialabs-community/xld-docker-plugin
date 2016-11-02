@@ -399,49 +399,9 @@
         </steps>
     </rule>
 
-    <rule name="docker.DeployedSwarmMachine.deploy" scope="deployed">
-        <conditions>
-            <type>docker.DeployedSwarmMachine</type>
-            <operation>CREATE</operation>
-        </conditions>
-        <steps>
-            <os-script>
-                <description expression="true">"Create the '%s' Swarm Docker machine on '%s'" % (deployed.machineName,deployed.container.name)</description>
-                <script>docker-machine/create-swarm</script>
-                <order expression="true">59 if deployed.master else 60</order>
-            </os-script>
-            <jython>
-                <description expression="true">"Fetch information about the '%s' Docker machine on '%s' " % (deployed.machineName,deployed.container.name)
-                </description>
-                <script>docker-machine/fetch-ip.py</script>
-                <order expression="true">59 if deployed.master else 60</order>
-                <jython-context>
-                    <target expression="true">deployed</target>
-                    <context_key expression="true">"data_%s" % deployed.name</context_key>
-                </jython-context>
-            </jython>
-            <jython>
-                <description expression="true">"Define the '%s' Docker machine in the XLD Repository" % (deployed.name)</description>
-                <script>docker-machine/ci/create.py</script>
-                <order expression="true">59 if deployed.master else 60</order>
-                <jython-context>
-                    <context_key expression="true">"data_%s" % deployed.name</context_key>
-                    <ci_type>docker.Machine</ci_type>
-                    <ci_id expression="true">"/".join([deployed.container.id,deployed.machineName])</ci_id>
-                    <ci_properties expression="true">{'provider': deployed.driver,'dynamicParameters':True, 'swarmMaster': True if deployed.master else False,
-                        'tags': deployed.containerTags}
-                    </ci_properties>
-                </jython-context>
-            </jython>
-
-        </steps>
-    </rule>
-
-
     <rule name="docker.DeployedDockerMachine.deploy.repository" scope="deployed">
         <conditions>
             <type>docker.DeployedDockerMachine</type>
-            <type>docker.DeployedSwarmMachine</type>
             <operation>CREATE</operation>
             <expression>deployed.environmentId is not None</expression>
         </conditions>
@@ -470,7 +430,6 @@
     <rule name="docker.DeployedDockerMachine.undeploy.repository" scope="deployed">
         <conditions>
             <type>docker.DeployedDockerMachine</type>
-            <type>docker.DeployedSwarmMachine</type>
             <operation>DESTROY</operation>
             <expression>previousDeployed.environmentId is not None</expression>
         </conditions>
@@ -492,7 +451,6 @@
     <rule name="docker.DeployedDockerMachine.undeploy" scope="deployed">
         <conditions>
             <type>docker.DeployedDockerMachine</type>
-            <type>docker.DeployedSwarmMachine</type>
             <operation>DESTROY</operation>
         </conditions>
         <steps>

@@ -201,25 +201,6 @@
         <property name="containerTags" required="false" kind="set_of_string" category="Provisioning" description="Deployment tags on the created ci"/>
     </type>
 
-    <!-- Provisioning -->
-    <type type="docker.DeployedSwarmMachine" extends="udm.BaseDeployed" container-type="overthere.Host" deployable-type="docker.SwarmMachineSpec">
-        <generate-deployable type="docker.SwarmMachineSpec" extends="udm.BaseDeployable"/>
-        <property name="driver" default="virtualbox" description="Driver to create machine with."/>
-        <property name="master" kind="boolean" default="false" required="false"/>
-        <property name="swarmImage" default="swarm:latest" description="Specify Docker image to use for Swarm"/>
-        <property name="swarmStrategy" default="spread" description="Define a default scheduling strategy for Swarm"/>
-        <property name="swarmDiscovery" description="Discovery service to use with Swarm, eg token://TOKEN"/>
-        <property name="swarmHost" default="tcp://0.0.0.0:3376" description="ip/socket to listen on for Swarm master"/>
-        <property name="insecureRegistries" kind="list_of_string" required="false" description="insecure registries to allow with the created engine"/>
-        <property name="engineOptions" kind="set_of_string" required="false" category="Engine"
-                  description="Arbitrary flags to include with the created engine in the form flag=value"/>
-        <property name="engineLabels" kind="set_of_string" required="false"
-                  description="Specify labels for the created engine key=value" category="Engine"/>
-        <property name="machineName" required="false" category="Provisioning"/>
-        <property name="environmentId" required="false" category="Provisioning"/>
-        <property name="containerTags" required="false" kind="set_of_string" category="Provisioning" description="Deployment tags on the created ci"/>
-    </type>
-    <!-- /Provisioning -->
 
 
     <type-modification type="docker.DockerMachineDictionary">
