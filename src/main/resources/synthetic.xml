@@ -56,7 +56,8 @@
         <property name="registryHost" required="false" category="Registry"/>
         <property name="registryPort" required="false" kind="integer" default="5000" category="Registry"/>
         <property name="registryUsername" required="false" category="Registry" description="Registry username"/>
-        <property name="registryPassword" required="false" password="true" category="Registry" description="Registry username"/>
+        <property name="registryPassword" required="false" password="true" category="Registry" description="Registry password"/>
+        <property name="registryEmail" required="false" category="Registry" description="Registry email"/>
         <property name="logDriver" required="false" category="Log" description="Logging driver for container "/>
     </type>
 
@@ -184,20 +185,6 @@
         <property name="separator" default="=" category="Advanced"
                   description="most of the time, it is '=' but something it can be ':' e.g. constraint:storage==ssd"/>
     </type>
-
-    <type type="docker.DeployedDockerMachine" extends="udm.BaseDeployed" container-type="overthere.Host" deployable-type="docker.MachineSpec">
-        <generate-deployable type="docker.MachineSpec" extends="udm.BaseDeployable"/>
-        <property name="driver" default="virtualbox" description="Driver to create machine with."/>
-        <property name="insecureRegistries" kind="list_of_string" required="false" description="insecure registries to allow with the created engine"/>
-        <property name="engineOptions" kind="set_of_string" required="false" category="Engine"
-                  description="Arbitrary flags to include with the created engine in the form flag=value"/>
-        <property name="engineLabels" kind="set_of_string" required="false" category="Engine"
-                  description="Specify labels for the created engine key=value"/>
-        <property name="machineName" required="false" category="Provisioning"/>
-        <property name="environmentId" required="false" category="Provisioning"/>
-        <property name="containerTags" required="false" kind="set_of_string" category="Provisioning" description="Deployment tags on the created ci"/>
-    </type>
-
 
     <type type="docker.machine.Provider" extends="udm.BaseContainer" description="Gateway to create new docker machines.">
         <property name="host" kind="ci" referenced-type="overthere.Host" as-containment="true"/>
