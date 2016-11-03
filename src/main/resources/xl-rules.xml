@@ -363,17 +363,18 @@
     <!-- / Docker Compose -->
 
     <!-- Docker Machine -->
-    <rule name="docker.DeployedDockerMachine.deploy" scope="deployed">
+    <rule name="docker.machine.Instance.CREATE" scope="deployed">
         <conditions>
-            <type>docker.DeployedDockerMachine</type>
+            <type>docker.machine.Instance</type>
             <operation>CREATE</operation>
         </conditions>
         <steps>
             <os-script>
-                <description expression="true">"Create the '%s' Docker machine on '%s' " % (deployed.machineName,deployed.container.name)</description>
-                <script>docker-machine/create</script>
                 <order>60</order>
+                <description expression="true">"Create '%s' docker machine using %s" % (deployed.name, deployed.container.name)</description>
+                <script>docker-machine/create</script>
             </os-script>
+            <checkpoint/>
             <jython>
                 <description expression="true">"Fetch information about the '%s' Docker machine on '%s' " % (deployed.machineName,deployed.container.name)
                 </description>
@@ -381,97 +382,30 @@
                 <order>60</order>
                 <jython-context>
                     <target expression="true">deployed</target>
-                    <context_key expression="true">"data_%s" % deployed.name</context_key>
-                </jython-context>
-            </jython>
-            <jython>
-                <order>60</order>
-                <description expression="true">"Define the '%s' Docker machine in the XLD Repository" % (deployed.machineName)</description>
-                <script>docker-machine/ci/create.py</script>
-                <jython-context>
-                    <context_key expression="true">"data_%s" % deployed.name</context_key>
-                    <ci_type>docker.Machine</ci_type>
-                    <ci_id expression="true">"/".join([deployed.container.id,deployed.machineName])</ci_id>
-                    <ci_properties expression="true">{'provider': deployed.driver,'dynamicParameters':True, 'tags': deployed.containerTags}
-                    </ci_properties>
                 </jython-context>
             </jython>
         </steps>
     </rule>
 
-    <rule name="docker.DeployedDockerMachine.deploy.repository" scope="deployed">
+    <rule name="docker.machine.Instance.DESTROY" scope="deployed">
         <conditions>
-            <type>docker.DeployedDockerMachine</type>
-            <operation>CREATE</operation>
-            <expression>deployed.environmentId is not None</expression>
-        </conditions>
-        <steps>
-            <jython>
-                <order>61</order>
-                <description expression="true">"Define the '%s' Environment in the XLD Repository" % (deployed.environmentId)</description>
-                <script>docker-machine/ci/create-environment.py</script>
-                <jython-context>
-                    <ci_type>udm.Environment</ci_type>
-                    <ci_id expression="true">deployed.environmentId</ci_id>
-                </jython-context>
-            </jython>
-            <jython>
-                <order>61</order>
-                <description expression="true">"Add '%s' docker-machine to the environment '%s'" % (deployed.name,deployed.environmentId)</description>
-                <script>docker-machine/ci/add-to-environment.py</script>
-                <jython-context>
-                    <ci_id expression="true">deployed.environmentId</ci_id>
-                    <ci_member_id expression="true">"/".join([deployed.container.id,deployed.machineName])</ci_member_id>
-                </jython-context>
-            </jython>
-        </steps>
-    </rule>
-
-    <rule name="docker.DeployedDockerMachine.undeploy.repository" scope="deployed">
-        <conditions>
-            <type>docker.DeployedDockerMachine</type>
-            <operation>DESTROY</operation>
-            <expression>previousDeployed.environmentId is not None</expression>
-        </conditions>
-        <steps>
-            <jython>
-                <order>39</order>
-                <description expression="true">"Remove '%s' docker-machine from the environment '%s'" %
-                    (previousDeployed.machineName,previousDeployed.environmentId)
-                </description>
-                <script>docker-machine/ci/remove-from-environment.py</script>
-                <jython-context>
-                    <ci_id expression="true">previousDeployed.environmentId</ci_id>
-                    <ci_member_id expression="true">"/".join([previousDeployed.container.id,"%s" % previousDeployed.machineName])</ci_member_id>
-                </jython-context>
-            </jython>
-        </steps>
-    </rule>
-
-    <rule name="docker.DeployedDockerMachine.undeploy" scope="deployed">
-        <conditions>
-            <type>docker.DeployedDockerMachine</type>
+            <type>docker.machine.Instance</type>
             <operation>DESTROY</operation>
         </conditions>
         <steps>
-            <jython>
-                <order>40</order>
-                <description expression="true">"Remove the '%s' Docker machine from the XLD Repository" % (previousDeployed.machineName)</description>
-                <script>docker-machine/ci/destroy.py</script>
-                <jython-context>
-                    <ci_id expression="true">"/".join([previousDeployed.container.id,"%s" % previousDeployed.machineName])</ci_id>
-                </jython-context>
-            </jython>
             <os-script>
                 <description expression="true">"Destroy the '%s' Docker machine" % previousDeployed.machineName</description>
                 <script>docker-machine/destroy</script>
+                <target-host expression="true">repositoryService.read('Infrastructure/Docker/localmachine')</target-host>
                 <order>40</order>
                 <freemarker-context>
                     <machine_name expression="true">previousDeployed.machineName</machine_name>
                 </freemarker-context>
             </os-script>
+
         </steps>
     </rule>
+
 
     <!-- /Docker Machine -->
 
