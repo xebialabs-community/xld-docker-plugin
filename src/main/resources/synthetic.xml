@@ -199,6 +199,25 @@
     </type>
 
 
+    <type type="docker.machine.Provider" extends="udm.BaseContainer" description="Gateway to create new docker machines.">
+        <property name="host" kind="ci" referenced-type="overthere.Host" as-containment="true"/>
+    </type>
+
+    <type type="docker.machine.Instance" extends="udm.BaseProvisioned"
+          deployable-type="docker.machine.InstanceSpec"
+          container-type="docker.machine.Provider" description="Docker Machine instance.">
+        <generate-deployable type="docker.machine.InstanceSpec" extends="udm.BaseProvisionable" copy-default-values="true" description="Specification for an Docker Machine instance."/>
+        <property name="driver" default="virtualbox" description="Driver to create machine with."/>
+        <property name="machineName" required="false"/>
+        <property name="insecureRegistries" kind="list_of_string" required="false" description="insecure registries to allow with the created engine"/>
+        <property name="engineOptions" kind="set_of_string" required="false" category="Engine" description="Arbitrary flags to include with the created engine in the form flag=value"/>
+        <property name="engineLabels" kind="set_of_string" required="false" category="Engine" description="Specify labels for the created engine key=value"/>
+        <property name="docker_host" label="Docker Host" category="Output" required="false"/>
+        <property name="docker_host_address" label="Docker Host Adress" category="Output" required="false"/>
+        <property name="docker_cert_path" label="Docker Certificate Path" category="Output" required="false"/>
+        <property name="docker_tls_verify" label="Docker TLS Verify" category="Output" required="false"/>
+    </type>
+
 
     <type-modification type="docker.DockerMachineDictionary">
         <method name="loadDockerMachines" label="Load the Docker Machines:w " delegate="jythonScript"
