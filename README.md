@@ -3,6 +3,15 @@
 The Docker plugin is a XL Deploy plugin that adds capability for deploying Docker Images to Docker Machines. 
 It manages also to deploy `docker-compose`files directly or to import them to turn them into `Docker.Images`.
 
+# CI status #
+
+[![Build Status][xld-docker-plugin-travis-image]][xld-docker-plugin-travis-url]
+
+[xld-docker-plugin-travis-image]: https://travis-ci.org/xebialabs-community/xld-docker-plugin.svg?branch=master
+[xld-docker-plugin-travis-url]: https://travis-ci.org/xebialabs-community/xld-docker-plugin
+
+
+
 # Installation #
 
 Place the plugin JAR file into your `SERVER_HOME/plugins` directory.
