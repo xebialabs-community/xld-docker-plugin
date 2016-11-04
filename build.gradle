@@ -5,6 +5,7 @@ plugins {
 
 version = '6.0.0'
 
+
 def apiVersion = '2015.2.7'
 
 apply plugin: "com.github.hierynomus.license"
