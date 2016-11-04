@@ -17,7 +17,7 @@ It manages also to deploy `docker-compose`files directly or to import them to tu
 Place the plugin JAR file into your `SERVER_HOME/plugins` directory.
 Dependencies:
 
-* XL Deploy 4.5+ 
+* XL Deploy 6.0+ 
 
 # Sample Applications #
 
