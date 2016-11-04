@@ -8,7 +8,7 @@ deploy:
   provider: releases
   api_key:
     secure: EGNMXxim1ozN2QOWlBJymdlIqVvikDSyfMZNEI+X8p1pwTeloil3n1BPHy6JvbmnebqSgqNq2fyMjyC7yjQ+ld5hCgsoVqE9tX+RZWVaikHh4UiZ1FZdOpYYYY49snKdE6mWQRi/l27aUcQf21gDzgah6F0Yyoiq8O+qsa3Aoh0=
-  file: build/distributions/xld-docker-plugin-6.0.1.xldp
+  file: build/distributions/xld-docker-plugin-6.0.2.xldp
   on:
     repo: xebialabs-community/xld-docker-plugin
     all_branches: true
