@@ -198,7 +198,7 @@
         <steps>
             <os-script>
                 <description expression="true">"Create the docker volume %s on %s" % (deployed.volumeName, deployed.container.name)</description>
-                <order>57</order>
+                <order>61</order>
                 <script>docker/volume-create</script>
                 <freemarker-context>
                     <target expression="true">deployed.container</target>
