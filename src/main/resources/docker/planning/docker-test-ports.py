@@ -18,7 +18,7 @@ def test_ports_on_containers(deployed):
         if port.testPort:
             context.addStep(steps.os_script(
                 description="Test the '%s' port on container '%s'" % (port.name, deployed.name),
-                order=85,
+                order=101,
                 script="docker/docker-port",
                 freemarker_context={'name': deployed.name, 'target': deployed.container, 'port': port},
                 target_host=deployed.container.host))
