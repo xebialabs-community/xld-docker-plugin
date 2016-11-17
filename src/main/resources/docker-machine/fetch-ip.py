@@ -6,7 +6,6 @@
 
 from overtherepy import OverthereHostSession
 import re
-import sys
 
 
 def to_map(stdout):
@@ -18,15 +17,22 @@ def to_map(stdout):
     return _data
 
 
+def machine_name(ci):
+    if ci.machineName is not None:
+        return ci.machineName
+    else:
+        return ci.name
+
 target_host = target.container.host
 session = OverthereHostSession(target_host)
-response = session.execute("docker-machine env %s " % target.machineName)
+command_line = "docker-machine env %s " % machine_name(target)
+print "Executing '%s'...." % command_line
+response = session.execute(command_line)
 data = to_map(response.stdout)
 ip = re.findall(r'[0-9]+(?:\.[0-9]+){3}', data['DOCKER_HOST'])
 if len(ip) == 1:
     data['address'] = ip[0]
-    print "IP Address is %s " % data['address']
-
+print "IP Address is %s " % data['address']
 print "--------------------"
 print data
 print "--------------------"
@@ -37,6 +43,7 @@ deployed.docker_host_address = data['address']
 deployed.docker_host = data['DOCKER_HOST']
 deployed.docker_cert_path = data['DOCKER_CERT_PATH']
 deployed.docker_tls_verify = data['DOCKER_TLS_VERIFY']
+if deployed.machineName is None:
+    deployed.machineName = deployed.name
 
 print "done"
-

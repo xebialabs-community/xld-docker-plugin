@@ -20,7 +20,10 @@ echo "Creating docker '${deployed.name}' machine using ${deployed.driver} provid
     <#assign cmdLine = cmdLine + ["--engine-label","\"${label}\""]/>
 </#list>
 
-
-<#assign cmdLine = cmdLine + ["${deployed.machineName}"]/>
+<#if (deployed.machineName??)>
+    <#assign cmdLine = cmdLine + ["${deployed.machineName}"]/>
+<#else>
+    <#assign cmdLine = cmdLine + ["${deployed.name}"]/>
+</#if>
 echo Executing <#list cmdLine as item>${item} </#list>
 <#list cmdLine as item>${item} </#list>
