@@ -212,4 +212,13 @@
         </method>
     </type-modification>
 
+    <!-- deprecated types -->
+
+    <type type="docker.DeployedDockerMachine" extends="udm.BaseDeployed" container-type="overthere.Host" deployable-type="docker.MachineSpec">
+        <generate-deployable type="docker.MachineSpec" extends="udm.BaseDeployable"/>
+        <property name="NotUsedAnymore" kind="boolean" default="true"/>
+    </type>
+
+    <!-- /deprecated types -->
+
 </synthetic>
