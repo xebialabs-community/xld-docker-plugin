@@ -10,22 +10,26 @@
 <#assign registry=""/>
 <#if (deployed.registryHost??)>
     <#assign registry="${deployed.registryHost}:${deployed.registryPort}/"/>
-    <#assign dockerLoginCommand = ["docker", "login"] />
+
     <#if (deployed.registryUsername??)>
+        <#assign dockerLoginCommand = ["docker", "login"] />
         <#assign dockerLoginCommand = dockerLoginCommand + ["--username ${deployed.registryUsername}"]/>
         <#assign dockerLoginCommand = dockerLoginCommand + ["--password ${deployed.registryPassword}"]/>
+        <#if (deployed.registryEmail??)>
+            <#assign dockerLoginCommand = dockerLoginCommand + ["--email ${deployed.registryEmail}"]/>
+        </#if>
+        <#assign dockerLoginCommand = dockerLoginCommand + ["${deployed.registryHost}:${deployed.registryPort}"]/>
     </#if>
-    <#if (deployed.registryEmail??)>
-        <#assign dockerLoginCommand = dockerLoginCommand + ["--email ${deployed.registryEmail}"]/>
-    </#if>
-    <#assign dockerLoginCommand = dockerLoginCommand + ["${deployed.registryHost}:${deployed.registryPort}"]/>
+
 </#if>
 
 if docker inspect ${deployed.image} > /dev/null ; then
 echo "${deployed.image} exists on the machine"
 else
+<#if dockerLoginCommand??>
 echo <#list dockerLoginCommand as item>${item} </#list>
 <#list dockerLoginCommand as item>${item} </#list>
+</#if>
 echo docker pull ${registry}${deployed.image}
 docker pull ${registry}${deployed.image}
 fi
