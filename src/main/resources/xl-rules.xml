@@ -21,6 +21,8 @@
         </conditions>
         <planning-script-path>docker/planning/check-container-configuration.py</planning-script-path>
     </rule>
+    <disable-rule  name="docker.cannot.have.network.and.links"/>
+
 
     <rule name="docker.network.deploy" scope="deployed">
         <conditions>
