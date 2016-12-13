@@ -190,7 +190,7 @@
         <property name="host" kind="ci" referenced-type="overthere.Host" as-containment="true"/>
     </type>
 
-    <type type="docker.machine.Instance" extends="udm.BaseProvisioned"
+        <type type="docker.machine.Instance" extends="udm.BaseProvisioned"
           deployable-type="docker.machine.InstanceSpec"
           container-type="docker.machine.Provider" description="Docker Machine instance.">
         <generate-deployable type="docker.machine.InstanceSpec" extends="udm.BaseProvisionable" copy-default-values="true" description="Specification for an Docker Machine instance."/>
@@ -207,7 +207,7 @@
 
 
     <type-modification type="docker.DockerMachineDictionary">
-        <method name="loadDockerMachines" label="Load the Docker Machines:w " delegate="jythonScript"
+        <method name="loadDockerMachines" label="Load the Docker Machines " delegate="jythonScript"
                 script="docker/load-docker-machine-in-dictionary.py">
         </method>
     </type-modification>
