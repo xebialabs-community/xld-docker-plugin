@@ -378,7 +378,7 @@
             </os-script>
             <checkpoint/>
             <jython>
-                <description expression="true">"Fetch information about the '%s' Docker machine on '%s' " % (deployed.machineName,deployed.container.name)
+                <description expression="true">"Fetch information about the '%s' Docker machine on '%s' " % (deployed.name,deployed.container.name)
                 </description>
                 <script>docker-machine/fetch-ip.py</script>
                 <order>60</order>
