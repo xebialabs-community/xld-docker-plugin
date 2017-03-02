@@ -364,53 +364,6 @@
     </rule>
     <!-- / Docker Compose -->
 
-    <!-- Docker Machine -->
-    <rule name="docker.machine.Instance.CREATE" scope="deployed">
-        <conditions>
-            <type>docker.machine.Instance</type>
-            <operation>CREATE</operation>
-        </conditions>
-        <steps>
-            <os-script>
-                <order>60</order>
-                <description expression="true">"Create '%s' docker machine using %s" % (deployed.name, deployed.container.name)</description>
-                <script>docker-machine/create</script>
-            </os-script>
-            <checkpoint/>
-            <jython>
-                <description expression="true">"Fetch information about the '%s' Docker machine on '%s' " % (deployed.name,deployed.container.name)
-                </description>
-                <script>docker-machine/fetch-ip.py</script>
-                <order>60</order>
-                <jython-context>
-                    <target expression="true">deployed</target>
-                </jython-context>
-            </jython>
-        </steps>
-    </rule>
-
-    <rule name="docker.machine.Instance.DESTROY" scope="deployed">
-        <conditions>
-            <type>docker.machine.Instance</type>
-            <operation>DESTROY</operation>
-        </conditions>
-        <steps>
-            <os-script>
-                <description expression="true">"Destroy the '%s' Docker machine" % previousDeployed.machineName</description>
-                <script>docker-machine/destroy</script>
-                <target-host expression="true">repositoryService.read('Infrastructure/Docker/localmachine')</target-host>
-                <order>40</order>
-                <freemarker-context>
-                    <machine_name expression="true">previousDeployed.machineName</machine_name>
-                </freemarker-context>
-            </os-script>
-
-        </steps>
-    </rule>
-
-
-    <!-- /Docker Machine -->
-
 
     <!-- Docker Swarm 1.12 -->
 
