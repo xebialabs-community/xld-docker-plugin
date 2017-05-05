@@ -193,8 +193,6 @@ The following table describes which deployable / container combinations are poss
 | docker.Folder | docker.Machine | docker.DataFolderVolume |
 | docker.File | docker.Machine | docker.DataFileVolume |
 | docker.ComposeFile | docker.Machine | docker.ComposedContainers |
-| smoketest.HttpRequestTest | smoketest.DockerRunner | smoketest.ExecutedDockerizedHttpRequestTest (experimental)|
-| sql.SqlScripts |sql.DockerMySqlClient | sql.DockerizedExecutedSqlScripts (experimental) |
 
 
 # Deployed Actions Table  #
@@ -206,13 +204,10 @@ The following table describes the effect a deployed has on its container.
 | docker.RunContainer (*)| Pull the container image, Create the Container, Start the container | Stop the container, Remove the container | Stop the container, Remove the container, Pull the container image, Create the container, Start the container  |
 | docker.DataFileVolume| Create the Docker volume, Copy the file to the volume linked to the container | Delete the file from the volume using the containers mount point | Delete the file from the volume using the containers mount point, Create the Docker volume, Copy the file to the volume linked to the container|
 | docker.DataFileVolume| Create the Docker volume, Copy the folder to the volume linked to the container | Delete the folder from the volume using the containers mount point | Delete the folder from the volume using the containers mount point, Create the Docker volume, Copy the folder to the volume linked to the container|
-| docker.ComposeFile| `docker-compose up`| `docker-compose stop && docker-compose rm`  | `docker-compose stop && docker-compose rm` and `docker-compose up` |
+
 
 
 (*) the `docker.RunContainer` generates the 'create' and the 'start' steps and sorts them based on the links between the containers.
 
-# Docker Compose File Importer #
-
-`docker-compose`  is a great tool but it looks like a black-box. The Docker Compose file importer allows to push `docker-compose`YAML file and to turn these information into `docker.Images` defined in the plugin.
 
 
