@@ -1,3 +1,10 @@
+# Important Message #
+This plugin is now put in low _maintenance_ mode.
+If you are interested in Docker, XebiaLabs offers a supported plugin : https://xebialabs.com/plugins/docker/
+If you are interested in Docker Compose, the features have been moved to this repository : https://github.com/xebialabs-community/xld-docker-compose-plugin
+If you are interested in Docker Machine, the features have been moved to this repository : https://github.com/xebialabs-community/xld-docker-machine-plugin
+
+
 # Overview #
 
 The Docker plugin is a XL Deploy plugin that adds capability for deploying Docker Images to Docker Machines. 
